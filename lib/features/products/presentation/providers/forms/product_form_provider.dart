@@ -6,226 +6,144 @@ import 'package:fenix_app_v2/features/products/domain/domain.dart';
 import 'package:fenix_app_v2/features/products/presentation/providers/providers.dart';
 import 'package:fenix_app_v2/features/shared/shared.dart';
 
+final productFormProvider = StateNotifierProvider.autoDispose
+    .family<ProductFormNotifier, ProductFormState, Product>((ref, product) {
+  // final createUpdateCallback = ref.watch( productsRepositoryProvider ).createUpdateProduct;
+  final createUpdateCallback =
+      ref.watch(productsProvider.notifier).createOrUpdateProduct;
 
-final productFormProvider = StateNotifierProvider.autoDispose.family<ProductFormNotifier, ProductFormState, Product>(
-  (ref, product) {
-
-    // final createUpdateCallback = ref.watch( productsRepositoryProvider ).createUpdateProduct;
-    final createUpdateCallback = ref.watch( productsProvider.notifier ).createOrUpdateProduct;
-
-    return ProductFormNotifier(
-      product: product,
-      onSubmitCallback: createUpdateCallback,
-    );
-  }
-);
-
-
-
-
+  return ProductFormNotifier(
+    product: product,
+    onSubmitCallback: createUpdateCallback,
+  );
+});
 
 class ProductFormNotifier extends StateNotifier<ProductFormState> {
-
-  final Future<bool> Function( Map<String,dynamic> productLike )? onSubmitCallback;
+  final Future<bool> Function(Map<String, dynamic> productLike)?
+      onSubmitCallback;
 
   ProductFormNotifier({
     this.onSubmitCallback,
     required Product product,
-  }): super(
-    ProductFormState(
-      id: product.id,
-      title: Title.dirty(product.title),
-      slug: Slug.dirty(product.slug),
-      price: Price.dirty(product.price),
-      inStock: Stock.dirty( product.stock ),
-      sizes: product.sizes,
-      gender: product.gender,
-      description: product.description,
-      tags: product.tags.join(', '),
-      images: product.images,
-    )
-  );
+  }) : super(ProductFormState(
+            idMaterial: product.idMaterial,
+            nombreMaterial: Title.dirty(product.nombreMaterial),
+            codigoMaterial: Slug.dirty(product.codigoMaterial),
+            precio: Price.dirty(product.precio),
+            esSeriado: product.esSeriado,
+            longitudSerie: product.longitudSerie,
+            idCategoria: product.idCategoria));
 
   Future<bool> onFormSubmit() async {
     _touchedEverything();
-    if ( !state.isFormValid ) return false;
+    if (!state.isFormValid) return false;
 
     // TODO: regresar
-    if ( onSubmitCallback == null ) return false;
+    if (onSubmitCallback == null) return false;
 
     final productLike = {
-      'id' : (state.id == 'new') ? null : state.id,
-      'title': state.title.value,
-      'price': state.price.value,
-      'description': state.description,
-      'slug': state.slug.value,
-      'stock': state.inStock.value,
-      'sizes': state.sizes,
-      'gender': state.gender,
-      'tags': state.tags.split(','),
-      'images': state.images.map(
-        (image) => image.replaceAll('${ Environment.apiUrl }/files/product/', '')
-      ).toList()
+      'nombre_material': state.nombreMaterial.value,
+      'precio': state.precio.value,
+      'codigo_material': state.codigoMaterial.value,
+      'es_seriado': state.esSeriado,
+      'longitud_serie': state.longitudSerie,
+      'id_categoria_material': state.idCategoria,
     };
 
     try {
-      return await onSubmitCallback!( productLike );
+      return await onSubmitCallback!(productLike);
     } catch (e) {
       return false;
     }
-
   }
-
 
   void _touchedEverything() {
     state = state.copyWith(
       isFormValid: Formz.validate([
-        Title.dirty(state.title.value),
-        Slug.dirty(state.slug.value),
-        Price.dirty(state.price.value),
-        Stock.dirty(state.inStock.value),
+        Title.dirty(state.nombreMaterial.value),
+        Slug.dirty(state.codigoMaterial.value),
+        Price.dirty(state.precio.value)
       ]),
     );
   }
 
-  void updateProductImage( String path ) {
+  void onTitleChanged(String value) {
     state = state.copyWith(
-      images: [...state.images, path ]
-    );
+        nombreMaterial: Title.dirty(value),
+        isFormValid: Formz.validate([
+          Title.dirty(value),
+          Slug.dirty(state.codigoMaterial.value),
+          Price.dirty(state.precio.value)
+        ]));
   }
 
-
-  void onTitleChanged( String value ) {
+  void onDescriptionChanged(String value) {
     state = state.copyWith(
-      title: Title.dirty(value),
-      isFormValid: Formz.validate([
-        Title.dirty(value),
-        Slug.dirty(state.slug.value),
-        Price.dirty(state.price.value),
-        Stock.dirty(state.inStock.value),
-      ])
-    );
+        nombreMaterial: Title.dirty(value),
+        isFormValid: Formz.validate([
+          Title.dirty(value),
+          Slug.dirty(state.codigoMaterial.value),
+          Price.dirty(state.precio.value)
+        ]));
   }
 
-  void onSlugChanged( String value ) {
+  void onSlugChanged(String value) {
     state = state.copyWith(
-      slug: Slug.dirty(value),
-      isFormValid: Formz.validate([
-        Title.dirty(state.title.value),
-        Slug.dirty(value),
-        Price.dirty(state.price.value),
-        Stock.dirty(state.inStock.value),
-      ])
-    );
+        codigoMaterial: Slug.dirty(value),
+        isFormValid: Formz.validate([
+          Title.dirty(state.nombreMaterial.value),
+          Slug.dirty(value),
+          Price.dirty(state.precio.value)
+        ]));
   }
 
-  void onPriceChanged( double value ) {
+  void onPriceChanged(double value) {
     state = state.copyWith(
-      price: Price.dirty(value),
-      isFormValid: Formz.validate([
-        Title.dirty(state.title.value),
-        Slug.dirty(state.slug.value),
-        Price.dirty(value),
-        Stock.dirty(state.inStock.value),
-      ])
-    );
+        precio: Price.dirty(value),
+        isFormValid: Formz.validate([
+          Title.dirty(state.nombreMaterial.value),
+          Slug.dirty(state.codigoMaterial.value),
+          Price.dirty(value)
+        ]));
   }
-
-  void onStockChanged( int value ) {
-    state = state.copyWith(
-      inStock: Stock.dirty(value),
-      isFormValid: Formz.validate([
-        Title.dirty(state.title.value),
-        Slug.dirty(state.slug.value),
-        Price.dirty(state.price.value),
-        Stock.dirty(value),
-      ])
-    );
-  }
-
-  void onSizeChanged( List<String> sizes ) {
-    state = state.copyWith(
-      sizes: sizes
-    );
-  }
-
-  void onGenderChanged( String gender ) {
-    state = state.copyWith(
-      gender: gender
-    );
-  }
-
-  void onDescriptionChanged( String description ) {
-    state = state.copyWith(
-      description: description
-    );
-  }
-
-  void onTagsChanged( String tags ) {
-    state = state.copyWith(
-      tags: tags
-    );
-  }
-
 }
 
-
-
-
-
 class ProductFormState {
-
   final bool isFormValid;
-  final String? id;
-  final Title title;
-  final Slug slug;
-  final Price price;
-  final List<String> sizes;
-  final String gender;
-  final Stock inStock;
-  final String description;
-  final String tags;
-  final List<String> images;
+  final int? idMaterial;
+  final Title nombreMaterial;
+  final Slug codigoMaterial;
+  final Price precio;
+  final bool esSeriado;
+  int? longitudSerie;
+  int? idCategoria;
 
-  ProductFormState({
-    this.isFormValid = false, 
-    this.id, 
-    this.title = const Title.dirty(''), 
-    this.slug = const Slug.dirty(''), 
-    this.price = const Price.dirty(0), 
-    this.sizes = const [], 
-    this.gender = 'men', 
-    this.inStock = const Stock.dirty(0), 
-    this.description = '', 
-    this.tags = '', 
-    this.images = const[]
-  });
+  ProductFormState(
+      {this.isFormValid = false,
+      this.idMaterial,
+      this.nombreMaterial = const Title.dirty(''),
+      this.codigoMaterial = const Slug.dirty(''),
+      this.precio = const Price.dirty(0),
+      this.esSeriado = false,
+      this.longitudSerie,
+      this.idCategoria});
 
-  ProductFormState copyWith({
-    bool? isFormValid,
-    String? id,
-    Title? title,
-    Slug? slug,
-    Price? price,
-    List<String>? sizes,
-    String? gender,
-    Stock? inStock,
-    String? description,
-    String? tags,
-    List<String>? images,
-  }) => ProductFormState(
-    isFormValid: isFormValid ?? this.isFormValid,
-    id: id ?? this.id,
-    title: title ?? this.title,
-    slug: slug ?? this.slug,
-    price: price ?? this.price,
-    sizes: sizes ?? this.sizes,
-    gender: gender ?? this.gender,
-    inStock: inStock ?? this.inStock,
-    description: description ?? this.description,
-    tags: tags ?? this.tags,
-    images: images ?? this.images,
-  );
-
-
+  ProductFormState copyWith(
+          {bool? isFormValid,
+          int? idMaterial,
+          Title? nombreMaterial,
+          Slug? codigoMaterial,
+          Price? precio,
+          bool? esSeriado,
+          int? longitudSerie,
+          int? idCategoria}) =>
+      ProductFormState(
+          isFormValid: isFormValid ?? this.isFormValid,
+          idMaterial: idMaterial ?? this.idMaterial,
+          nombreMaterial: nombreMaterial ?? this.nombreMaterial,
+          codigoMaterial: codigoMaterial ?? this.codigoMaterial,
+          precio: precio ?? this.precio,
+          esSeriado: esSeriado ?? this.esSeriado,
+          longitudSerie: longitudSerie ?? this.longitudSerie,
+          idCategoria: idCategoria ?? this.idCategoria);
 }

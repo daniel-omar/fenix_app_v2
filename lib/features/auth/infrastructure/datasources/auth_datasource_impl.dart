@@ -1,69 +1,59 @@
 import 'package:dio/dio.dart';
-import 'package:fenix_app_v2/config/config.dart';
 import 'package:fenix_app_v2/features/auth/domain/domain.dart';
 import 'package:fenix_app_v2/features/auth/infrastructure/infrastructure.dart';
+import 'package:fenix_app_v2/features/shared/infrastructure/entities/response_main.dart';
+import 'package:fenix_app_v2/features/shared/infrastructure/mappers/response_main_mapper.dart';
+import 'package:fenix_app_v2/features/shared/infrastructure/providers/dio_client.dart';
 
 class AuthDataSourceImpl extends AuthDataSource {
-
-  final dio = Dio(
-    BaseOptions(
-      baseUrl: Environment.apiUrl,
-    )
-  );
+  final dioClient = DioClient();
 
   @override
   Future<User> checkAuthStatus(String token) async {
-    
     try {
-      
-      final response = await dio.get('/auth/check-status',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token'
-          }
-        )
-      );
+      final response = await dioClient.dio.get('/auth/check-status',
+          options: Options(headers: {'Authorization': 'Bearer $token'}));
 
       final user = UserMapper.userJsonToEntity(response.data);
       return user;
-
-
-    } on DioError catch (e) {
-      if( e.response?.statusCode == 401 ){
-         throw CustomError('Token incorrecto');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw CustomError('Token incorrecto');
       }
       throw Exception();
     } catch (e) {
       throw Exception();
     }
-
   }
 
   @override
   Future<User> login(String email, String password) async {
-    
     try {
-      final response = await dio.post('/auth/login', data: {
-        'email': email,
-        'password': password
-      });
+      final response = await dioClient.dio.post('/auth/login',
+          data: {'correo': email, 'clave': password},
+          options: Options(
+            headers: {
+              "is_auth": true,
+            },
+          ));
 
-      final user = UserMapper.userJsonToEntity(response.data);
+      ResponseMain responseMain =
+          ResponseMainMapper.responseJsonToEntity(response.data);
+
+      final user = UserMapper.userLoginJsonToEntity(responseMain.data);
       return user;
-      
-    } on DioError catch (e) {
-      if( e.response?.statusCode == 401 ){
-         throw CustomError(e.response?.data['message'] ?? 'Credenciales incorrectas' );
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw CustomError(
+            e.response?.data['message'] ?? 'Credenciales incorrectas');
       }
-      if ( e.type == DioErrorType.connectionTimeout ){
+      if (e.type == DioExceptionType.connectionTimeout) {
         throw CustomError('Revisar conexión a internet');
       }
       throw Exception();
     } catch (e) {
       throw Exception();
     }
-
-
   }
 
   @override
@@ -71,5 +61,4 @@ class AuthDataSourceImpl extends AuthDataSource {
     // TODO: implement register
     throw UnimplementedError();
   }
-  
 }

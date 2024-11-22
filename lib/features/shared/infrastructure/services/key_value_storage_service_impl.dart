@@ -1,30 +1,29 @@
+import 'package:fenix_app_v2/features/auth/domain/domain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'key_value_storage_service.dart';
 
-
-
-
 class KeyValueStorageServiceImpl extends KeyValueStorageService {
-
   Future<SharedPreferences> getSharedPrefs() async {
     return await SharedPreferences.getInstance();
   }
 
-
   @override
-  Future<T?> getValue<T>(String key) async{
+  Future<T?> getValue<T>(String key) async {
     final prefs = await getSharedPrefs();
 
-    switch(T) {
+    switch (T) {
       case int:
-        return prefs.getInt( key ) as T?;
-        
+        return prefs.getInt(key) as T?;
 
       case String:
         return prefs.getString(key) as T?;
 
+      case User:
+        return prefs.getString(key) as T?;
+
       default:
-        throw UnimplementedError('GET not implemented for type ${ T.runtimeType }');
+        throw UnimplementedError(
+            'GET not implemented for type ${T.runtimeType}');
     }
   }
 
@@ -38,9 +37,9 @@ class KeyValueStorageServiceImpl extends KeyValueStorageService {
   Future<void> setKeyValue<T>(String key, T value) async {
     final prefs = await getSharedPrefs();
 
-    switch(T) {
+    switch (T) {
       case int:
-        prefs.setInt( key, value as int );
+        prefs.setInt(key, value as int);
         break;
 
       case String:
@@ -48,9 +47,8 @@ class KeyValueStorageServiceImpl extends KeyValueStorageService {
         break;
 
       default:
-        throw UnimplementedError('Set not implemented for type ${ T.runtimeType }');
+        throw UnimplementedError(
+            'Set not implemented for type ${T.runtimeType}');
     }
-    
   }
-
 }

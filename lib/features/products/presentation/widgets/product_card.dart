@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:fenix_app_v2/features/products/domain/domain.dart';
 
-
 class ProductCard extends StatelessWidget {
-
   final Product product;
 
-  const ProductCard({
-    super.key, 
-    required this.product
-  });
+  const ProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _ImageViewer( images: product.images ),
-        Text( product.title, textAlign: TextAlign.center, ),
+        // _ImageViewer(images: product.images),
+        Text(
+          product.nombreMaterial,
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 20)
       ],
     );
@@ -24,18 +22,17 @@ class ProductCard extends StatelessWidget {
 }
 
 class _ImageViewer extends StatelessWidget {
-
   final List<String> images;
 
-  const _ImageViewer({ required this.images });
+  const _ImageViewer({required this.images});
 
   @override
   Widget build(BuildContext context) {
-    
-    if ( images.isEmpty ) {
+    if (images.isEmpty) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(20),
-        child: Image.asset('assets/images/no-image.jpg', 
+        child: Image.asset(
+          'assets/images/no-image.jpg',
           fit: BoxFit.cover,
           height: 250,
         ),
@@ -49,10 +46,9 @@ class _ImageViewer extends StatelessWidget {
         height: 250,
         fadeOutDuration: const Duration(milliseconds: 100),
         fadeInDuration: const Duration(milliseconds: 200),
-        image: NetworkImage( images.first ),
+        image: NetworkImage(images.first),
         placeholder: const AssetImage('assets/loaders/bottle-loader.gif'),
       ),
     );
-
   }
 }

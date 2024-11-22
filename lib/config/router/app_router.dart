@@ -1,3 +1,4 @@
+import 'package:fenix_app_v2/features/home/presentation/screens/home_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fenix_app_v2/features/auth/auth.dart';
@@ -32,6 +33,10 @@ final goRouterProvider = Provider((ref) {
       ///* Product Routes
       GoRoute(
         path: '/',
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/products',
         builder: (context, state) => const ProductsScreen(),
       ),
       GoRoute(

@@ -1,7 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fenix_app_v2/features/shared/infrastructure/services/key_value_storage_service.dart';
+import 'package:fenix_app_v2/features/shared/infrastructure/services/key_value_storage_service_impl.dart';
 
 class AuthInterceptor implements Interceptor {
+  final KeyValueStorageService keyValueStorageService =
+      KeyValueStorageServiceImpl();
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
@@ -9,8 +12,7 @@ class AuthInterceptor implements Interceptor {
       return handler.next(options);
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.get('token');
+    final token = await keyValueStorageService.getValue<String>('token');
     options.headers.addAll({"Authorization": "$token"});
 
     handler.next(options);

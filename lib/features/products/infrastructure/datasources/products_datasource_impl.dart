@@ -8,9 +8,8 @@ import '../mappers/product_mapper.dart';
 
 class ProductsDatasourceImpl extends ProductsDatasource {
   late final dioClient = DioClient();
-  final String accessToken;
 
-  ProductsDatasourceImpl({required this.accessToken});
+  ProductsDatasourceImpl();
 
   Future<String> _uploadFile(String path) async {
     try {

@@ -9,7 +9,7 @@ class User {
   String correo;
   String? fechaNacimiento;
   int idPerfil;
-  DateTime fechaHoraRegistro;
+  DateTime? fechaHoraRegistro;
   DateTime? fechaHoraActualizacion;
   int? idUsuarioRegistro;
   int? idUsuarioActualizacion;
@@ -28,7 +28,7 @@ class User {
       required this.correo,
       this.fechaNacimiento,
       required this.idPerfil,
-      required this.fechaHoraRegistro,
+      this.fechaHoraRegistro,
       this.fechaHoraActualizacion,
       this.idUsuarioRegistro,
       this.idUsuarioActualizacion,
@@ -51,7 +51,7 @@ class User {
         "correo": correo,
         "fecha_nacimiento": fechaNacimiento,
         "id_perfil": idPerfil,
-        "fecha_hora_registro": fechaHoraRegistro.toIso8601String(),
+        "fecha_hora_registro": fechaHoraRegistro?.toIso8601String(),
         "fecha_hora_actualizacion": fechaHoraActualizacion,
         "id_usuario_registro": idUsuarioRegistro,
         "id_usuario_actualizacion": idUsuarioActualizacion,

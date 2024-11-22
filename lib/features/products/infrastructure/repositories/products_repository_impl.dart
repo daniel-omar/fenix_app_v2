@@ -1,13 +1,9 @@
 import 'package:fenix_app_v2/features/products/domain/domain.dart';
 
-
-
 class ProductsRepositoryImpl extends ProductsRepository {
-
   final ProductsDatasource datasource;
 
   ProductsRepositoryImpl(this.datasource);
-
 
   @override
   Future<Product> createUpdateProduct(Map<String, dynamic> productLike) {
@@ -21,12 +17,11 @@ class ProductsRepositoryImpl extends ProductsRepository {
 
   @override
   Future<List<Product>> getProductsByPage({int limit = 10, int offset = 0}) {
-    return datasource.getProductsByPage( limit: limit, offset: offset );
+    return datasource.getProductsByPage(limit: limit, offset: offset);
   }
 
   @override
   Future<List<Product>> searchProductByTerm(String term) {
     return datasource.searchProductByTerm(term);
   }
-
 }

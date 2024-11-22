@@ -18,9 +18,6 @@ class KeyValueStorageServiceImpl extends KeyValueStorageService {
       case String:
         return prefs.getString(key) as T?;
 
-      case User:
-        return prefs.getString(key) as T?;
-
       default:
         throw UnimplementedError(
             'GET not implemented for type ${T.runtimeType}');

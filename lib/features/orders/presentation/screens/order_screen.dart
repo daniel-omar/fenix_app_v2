@@ -1,157 +1,138 @@
 import 'dart:io';
 
+import 'package:fenix_app_v2/features/orders/domain/entities/order.dart';
+import 'package:fenix_app_v2/features/orders/presentation/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fenix_app_v2/features/products/domain/domain.dart';
-import 'package:fenix_app_v2/features/products/presentation/providers/providers.dart';
 import 'package:fenix_app_v2/features/shared/shared.dart';
 
-class ProductScreen extends ConsumerWidget {
-  final String productId;
+class OrderScreen extends ConsumerWidget {
+  final int idOrden;
 
-  const ProductScreen({super.key, required this.productId});
+  const OrderScreen({super.key, required this.idOrden});
 
   void showSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Producto Actualizado')));
+        .showSnackBar(const SnackBar(content: Text('Orden Actualizado')));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final productState = ref.watch(productProvider(productId));
+    final orderState = ref.watch(orderProvider(idOrden));
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Editar Producto'),
+          title: const Text('Detalle Orden'),
           actions: [
             IconButton(
-                onPressed: () async {
-                  final photoPath =
-                      await CameraGalleryServiceImpl().selectPhoto();
-                  if (photoPath == null) return;
+              onPressed: () async {
+                final photoPath =
+                    await CameraGalleryServiceImpl().selectPhoto();
+                if (photoPath == null) return;
 
-                  //codigo;
-                },
-                icon: const Icon(Icons.photo_library_outlined)),
+                //codigo;
+              },
+              icon: const Icon(Icons.photo_library_outlined),
+            ),
             IconButton(
-                onPressed: () async {
-                  final photoPath =
-                      await CameraGalleryServiceImpl().takePhoto();
-                  if (photoPath == null) return;
+              onPressed: () async {
+                final photoPath = await CameraGalleryServiceImpl().takePhoto();
+                if (photoPath == null) return;
 
-                  //codigo
-                },
-                icon: const Icon(Icons.camera_alt_outlined))
+                //codigo
+              },
+              icon: const Icon(Icons.camera_alt_outlined),
+            )
           ],
         ),
-        body: productState.isLoading
+        body: orderState.isLoading
             ? const FullScreenLoader()
-            : _ProductView(product: productState.product!),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            if (productState.product == null) return;
-
-            ref
-                .read(productFormProvider(productState.product!).notifier)
-                .onFormSubmit()
-                .then((value) {
-              if (!value) return;
-              showSnackbar(context);
-            });
-          },
-          child: const Icon(Icons.save_as_outlined),
-        ),
+            : _OrderView(
+                order: orderState.order!,
+              ),
+        floatingActionButton: orderState.isLoading
+            ? null
+            : (orderState.order!.estadoOrden.idEstadoOrden != 2
+                ? null
+                : FloatingActionButton.extended(
+                    onPressed: () {
+                      if (orderState.order == null) return;
+                    },
+                    label: const Text(
+                      "Iniciar liquidación",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  )),
       ),
     );
   }
 }
 
-class _ProductView extends ConsumerWidget {
-  final Product product;
+class _OrderView extends ConsumerWidget {
+  final Order order;
 
-  const _ProductView({required this.product});
+  const _OrderView({required this.order});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final productForm = ref.watch(productFormProvider(product));
+    final productDetail = ref.watch(orderProvider(order.idOrden));
 
     final textStyles = Theme.of(context).textTheme;
 
     return ListView(
       children: [
         Center(
-            child: Text(
-          productForm.nombreMaterial.value,
-          style: textStyles.titleSmall,
-          textAlign: TextAlign.center,
-        )),
+          child: Text(
+            productDetail.order!.numeroOrden,
+            style: textStyles.titleSmall,
+            textAlign: TextAlign.center,
+          ),
+        ),
         const SizedBox(height: 10),
-        _ProductInformation(product: product),
+        _OrderInformation(order: order),
       ],
     );
   }
 }
 
-class _ProductInformation extends ConsumerWidget {
-  final Product product;
-  const _ProductInformation({required this.product});
+class _OrderInformation extends ConsumerWidget {
+  final Order order;
+  const _OrderInformation({required this.order});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final productForm = ref.watch(productFormProvider(product));
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Generales'),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
           CustomProductField(
+            readOnly: true,
             isTopField: true,
-            label: 'Nombre',
-            initialValue: productForm.nombreMaterial.value,
-            onChanged:
-                ref.read(productFormProvider(product).notifier).onTitleChanged,
-            errorMessage: productForm.nombreMaterial.errorMessage,
+            label: 'Cliente',
+            initialValue:
+                "${order.cliente.nombreCliente} ${order.cliente.apellidoPaterno} ${order.cliente.apellidoMaterno}",
           ),
+          const SizedBox(height: 10),
           CustomProductField(
-            label: 'Slug',
-            initialValue: productForm.codigoMaterial.value,
-            onChanged:
-                ref.read(productFormProvider(product).notifier).onSlugChanged,
-            errorMessage: productForm.codigoMaterial.errorMessage,
+            readOnly: true,
+            isTopField: true,
+            label: 'Actividad',
+            initialValue: order.actividad.nombreActividad,
           ),
+          const SizedBox(height: 10),
           CustomProductField(
-            isBottomField: true,
-            label: 'Precio',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            initialValue: productForm.precio.value.toString(),
-            onChanged: (value) => ref
-                .read(productFormProvider(product).notifier)
-                .onPriceChanged(double.tryParse(value) ?? -1),
-            errorMessage: productForm.precio.errorMessage,
-          ),
-          const SizedBox(height: 15),
-          CustomProductField(
-            maxLines: 6,
-            label: 'Descripción',
-            keyboardType: TextInputType.multiline,
-            initialValue: product.descripcionMaterial!,
-            onChanged: ref
-                .read(productFormProvider(product).notifier)
-                .onDescriptionChanged,
-          ),
-          const SizedBox(height: 100),
-          // _SizeSelector(
-          //   selectedSizes: productForm.sizes,
-          //   onSizesChanged: ref.read( productFormProvider(product).notifier).onSizeChanged,
-          // ),
-          // const SizedBox(height: 5 ),
+            readOnly: true,
+            isTopField: true,
+            label: 'Estado',
+            initialValue: order.estadoOrden.nombreEstado,
+          )
         ],
       ),
     );

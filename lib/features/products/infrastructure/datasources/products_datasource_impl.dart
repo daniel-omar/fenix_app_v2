@@ -46,7 +46,7 @@ class ProductsDatasourceImpl extends ProductsDatasource {
       final String? productId = productLike['id'];
       final String method = (productId == null) ? 'POST' : 'PATCH';
       final String url =
-          (productId == null) ? '/products' : '/products/$productId';
+          (productId == null) ? '/materials' : '/materials/$productId';
 
       productLike.remove('id');
       productLike['images'] = await _uploadPhotos(productLike['images']);
@@ -64,7 +64,7 @@ class ProductsDatasourceImpl extends ProductsDatasource {
   @override
   Future<Product> getProductById(String id) async {
     try {
-      final response = await dioClient.dio.get('/products/$id');
+      final response = await dioClient.dio.get('/materials/$id');
       final product = ProductMapper.jsonToEntity(response.data);
       return product;
     } on DioError catch (e) {
@@ -79,7 +79,7 @@ class ProductsDatasourceImpl extends ProductsDatasource {
   Future<List<Product>> getProductsByPage(
       {int limit = 10, int offset = 0}) async {
     final response =
-        await dioClient.dio.get<List>('/products?limit=$limit&offset=$offset');
+        await dioClient.dio.get<List>('/materials?limit=$limit&offset=$offset');
     final List<Product> products = [];
     for (final product in response.data ?? []) {
       products.add(ProductMapper.jsonToEntity(product));

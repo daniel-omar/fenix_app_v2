@@ -16,7 +16,7 @@ class Order {
   OrderStatus estadoOrden;
   Activity actividad;
 
-  Order(Map map, {
+  Order({
     required this.idOrden,
     required this.numeroOrden,
     required this.direccion,

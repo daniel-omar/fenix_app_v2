@@ -17,19 +17,16 @@ class OrdersNotifier extends StateNotifier<OrdersState> {
 
   OrdersNotifier({
     required this.ordersRepository,
-  }) : super(OrdersState()) ;
-  
+  }) : super(OrdersState());
+
   Future getOrdersByTechnical(int idTecnico, {int? idEstadoOrden}) async {
-    if (state.isLoading || state.isLastPage) return;
+    // if (state.isLoading || state.isLastPage) return;
 
     state = state.copyWith(isLoading: true);
 
-    final products = await ordersRepository.getOrdersByTechnical(idTecnico,
-        limit: state.limit,
-        offset: state.offset,
-        idsEstadoOrden: [idEstadoOrden!]);
+    final orders = await ordersRepository.getOrdersByTechnical(idTecnico);
 
-    if (products.isEmpty) {
+    if (orders.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
       return;
     }
@@ -38,7 +35,7 @@ class OrdersNotifier extends StateNotifier<OrdersState> {
         isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
-        orders: [...state.orders, ...products]);
+        orders: orders);
   }
 }
 

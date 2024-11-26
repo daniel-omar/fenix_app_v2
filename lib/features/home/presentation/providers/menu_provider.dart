@@ -63,6 +63,15 @@ class MenuNotifier extends StateNotifier<MenuState> {
         offset: state.offset + 10,
         menus: [...state.menus, ...menus]);
   }
+
+  Future setMenu(Menu menu) async {
+    state = state.copyWith(
+        isLastPage: false,
+        isLoading: false,
+        offset: state.offset,
+        menus: [...state.menus],
+        menu: menu);
+  }
 }
 
 class MenuState {
@@ -71,26 +80,29 @@ class MenuState {
   final int offset;
   final bool isLoading;
   final List<Menu> menus;
+  final Menu? menu;
 
   MenuState(
       {this.isLastPage = false,
       this.limit = 10,
       this.offset = 0,
       this.isLoading = false,
-      this.menus = const []});
+      this.menus = const [],
+      this.menu});
 
-  MenuState copyWith({
-    bool? isLastPage,
-    int? limit,
-    int? offset,
-    bool? isLoading,
-    List<Menu>? menus,
-  }) =>
+  MenuState copyWith(
+          {bool? isLastPage,
+          int? limit,
+          int? offset,
+          bool? isLoading,
+          List<Menu>? menus,
+          Menu? menu}) =>
       MenuState(
         isLastPage: isLastPage ?? this.isLastPage,
         limit: limit ?? this.limit,
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,
         menus: menus ?? this.menus,
+        menu: menu ?? this.menu,
       );
 }

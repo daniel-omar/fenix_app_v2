@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'order_repository_provider.dart';
 
 final orderProvider = StateNotifierProvider.autoDispose
-    .family<OrderNotifier, OrderState, String>((ref, productId) {
+    .family<OrderNotifier, OrderState, int>((ref, idOrden) {
   final orderRepository = ref.watch(orderRepositoryProvider);
 
-  return OrderNotifier(orderRepository: orderRepository, productId: productId);
+  return OrderNotifier(orderRepository: orderRepository, idOrden: idOrden);
 });
 
 class OrderNotifier extends StateNotifier<OrderState> {
@@ -15,14 +15,14 @@ class OrderNotifier extends StateNotifier<OrderState> {
 
   OrderNotifier({
     required this.orderRepository,
-    required String productId,
-  }) : super(OrderState(id: productId)) {
+    required int idOrden,
+  }) : super(OrderState(idOrden: idOrden)) {
     loadProduct();
   }
 
   Future<void> loadProduct() async {
     try {
-      if (state.id == 'new') {
+      if (state.idOrden == 0) {
         state = state.copyWith(
           isLoading: false,
           order: null,
@@ -30,8 +30,8 @@ class OrderNotifier extends StateNotifier<OrderState> {
         return;
       }
 
-      final order = await orderRepository.getOrderById(state.order!.idOrden);
-
+      final order = await orderRepository.getOrderById(state.idOrden);
+      // print(order.toJson());
       state = state.copyWith(isLoading: false, order: order);
     } catch (e) {
       // 404 product not found
@@ -41,26 +41,26 @@ class OrderNotifier extends StateNotifier<OrderState> {
 }
 
 class OrderState {
-  final String id;
+  final int idOrden;
   final Order? order;
   final bool isLoading;
   final bool isSaving;
 
   OrderState({
-    required this.id,
+    required this.idOrden,
     this.order,
     this.isLoading = true,
     this.isSaving = false,
   });
 
   OrderState copyWith({
-    String? id,
+    int? idOrden,
     Order? order,
     bool? isLoading,
     bool? isSaving,
   }) =>
       OrderState(
-        id: id ?? this.id,
+        idOrden: idOrden ?? this.idOrden,
         order: order ?? this.order,
         isLoading: isLoading ?? this.isLoading,
         isSaving: isSaving ?? this.isSaving,

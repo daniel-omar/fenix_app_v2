@@ -17,19 +17,19 @@ class ProductsScreen extends StatelessWidget {
     return Scaffold(
       drawer: SideMenu(scaffoldKey: scaffoldKey),
       appBar: AppBar(
-        title: const Text('Products'),
+        title: const Text('Materiales'),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
         ],
       ),
       body: const _ProductsView(),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Nuevo producto'),
-        icon: const Icon(Icons.add),
-        onPressed: () {
-          context.push('/product/new');
-        },
-      ),
+      // floatingActionButton: FloatingActionButton.extended(
+      //   label: const Text('Nuevo producto'),
+      //   icon: const Icon(Icons.add),
+      //   onPressed: () {
+      //     context.push('/product/new');
+      //   },
+      // ),
     );
   }
 }

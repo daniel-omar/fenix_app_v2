@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:fenix_app_v2/config/config.dart';
 import 'package:fenix_app_v2/features/home/domain/domain.dart';
 import 'package:fenix_app_v2/features/shared/infrastructure/providers/dio_client.dart';
+import 'package:flutter/material.dart';
 
 import '../errors/menu_errors.dart';
 import '../mappers/menu_mapper.dart';
@@ -31,14 +32,29 @@ class MenuDatasourceImpl extends MenuDatasource {
 
     //final response = await dioClient.dio.get<List>('/permisos/$idUsuario');
     final List<Menu> menus = [];
-    menus.add(
+    menus.addAll([
       Menu(
           idMenu: 1,
           codigoMenu: "0001",
           nombreMenu: "Materiales",
           descripcionMenu: "Materiales técnico",
-          rutaMenu: "/materials"),
-    );
+          rutaMenu: "/materials",
+          icono: Icons.image_search_rounded),
+      Menu(
+          idMenu: 2,
+          codigoMenu: "0002",
+          nombreMenu: "Ordenes",
+          descripcionMenu: "Ordenes",
+          rutaMenu: "/orders",
+          icono: Icons.warehouse_rounded),
+      // Menu(
+      //     idMenu: 3,
+      //     codigoMenu: "0003",
+      //     nombreMenu: "Materiales",
+      //     descripcionMenu: "Materiales técnico",
+      //     rutaMenu: "/materials",
+      //     icono: Icons.warehouse_outlined),
+    ]);
     // for (final product in response.data ?? []) {
     //   products.add(MenuMapper.jsonToEntity(product));
     // }

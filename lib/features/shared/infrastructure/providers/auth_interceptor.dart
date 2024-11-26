@@ -8,12 +8,13 @@ class AuthInterceptor implements Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    if (options.headers['is_auth']) {
+    bool isAuth = options.headers['is_auth'] ?? false;
+    if (isAuth == true) {
       return handler.next(options);
     }
 
     final token = await keyValueStorageService.getValue<String>('token');
-    options.headers.addAll({"Authorization": "$token"});
+    options.headers.addAll({'authorization': "Bearer $token"});
 
     handler.next(options);
   }

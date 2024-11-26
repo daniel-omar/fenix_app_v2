@@ -65,15 +65,31 @@ class _MenuViewState extends ConsumerState {
         physics: const BouncingScrollPhysics(),
         crossAxisCount: 2,
         mainAxisSpacing: 20,
-        crossAxisSpacing: 35,
+        crossAxisSpacing: 25,
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
         itemCount: menuState.menus.length,
         itemBuilder: (context, index) {
           final menu = menuState.menus[index];
           return GestureDetector(
-              // onTap: () => context.push('/product/${menu.idMenu}'),
+              onTap: () => ref.read(menuProvider.notifier).setMenu(menu),
               child: MenuCard(menu: menu));
         },
       ),
     );
   }
+
+  // _crearListado() {
+  //   return GridView.builder(
+  //     itemCount: pages.length,
+  //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+  //         crossAxisCount: 2,
+  //         childAspectRatio: MediaQuery.of(context).size.width /
+  //             (MediaQuery.of(context).size.height / 2),
+  //         crossAxisSpacing: 30,
+  //         mainAxisSpacing: 30),
+  //     itemBuilder: (context, index) {
+  //       return _crearItem(context, pages[index]);
+  //     },
+  //   );
+  // }
 }

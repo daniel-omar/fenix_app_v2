@@ -1,4 +1,5 @@
 import 'package:fenix_app_v2/features/home/presentation/screens/home_screen.dart';
+import 'package:fenix_app_v2/features/orders/presentation/screens/screens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fenix_app_v2/features/auth/auth.dart';
@@ -36,13 +37,25 @@ final goRouterProvider = Provider((ref) {
         builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
-        path: '/products',
+        path: '/materials',
         builder: (context, state) => const ProductsScreen(),
       ),
       GoRoute(
-        path: '/product/:id', // /product/new
+        path: '/material/:id', // /product/new
         builder: (context, state) => ProductScreen(
           productId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+      GoRoute(
+        path: '/orders',
+        builder: (context, state) => const OrdersScreen(),
+      ),
+      GoRoute(
+        path: '/order/:idOrden', // /product/new
+        builder: (context, state) => OrderScreen(
+          idOrden: state.pathParameters['idOrden'] != null
+              ? int.parse(state.pathParameters['idOrden']!)
+              : 0,
         ),
       ),
     ],

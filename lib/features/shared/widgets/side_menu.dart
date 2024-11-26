@@ -1,11 +1,14 @@
 import 'package:fenix_app_v2/config/router/app_router_notifier.dart';
 import 'package:fenix_app_v2/features/auth/domain/domain.dart';
 import 'package:fenix_app_v2/features/auth/infrastructure/mappers/user_mapper.dart';
+import 'package:fenix_app_v2/features/home/domain/domain.dart';
+import 'package:fenix_app_v2/features/home/presentation/providers/menu_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fenix_app_v2/features/auth/presentation/providers/auth_provider.dart';
 // import 'package:go_router/go_router.dart';
 import 'package:fenix_app_v2/features/shared/shared.dart';
+import 'package:go_router/go_router.dart';
 
 class SideMenu extends ConsumerStatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -25,17 +28,30 @@ class SideMenuState extends ConsumerState<SideMenu> {
     final hasNotch = MediaQuery.of(context).viewPadding.top > 35;
     final textStyles = Theme.of(context).textTheme;
     final goRouterNotifier = ref.read(goRouterNotifierProvider);
+    final menuState = ref.watch(menuProvider);
 
     return NavigationDrawer(
         elevation: 1,
-        selectedIndex: navDrawerIndex,
+        selectedIndex: menuState.menu == null ? 0 : menuState.menu!.idMenu,
         onDestinationSelected: (value) {
           setState(() {
             navDrawerIndex = value;
           });
 
-          // final menuItem = appMenuItems[value];
-          // context.push( menuItem.link );
+          if (navDrawerIndex == 0) {
+            ref.read(menuProvider.notifier).setMenu(Menu(
+                idMenu: 0,
+                codigoMenu: "",
+                nombreMenu: "",
+                descripcionMenu: "",
+                icono: Icons.home,
+                rutaMenu: "/"));
+            context.push("/");
+          } else {
+            final menuItem = menuState.menus[navDrawerIndex - 1];
+            ref.read(menuProvider.notifier).setMenu(menuItem);
+            context.push(menuItem.rutaMenu);
+          }
           widget.scaffoldKey.currentState?.closeDrawer();
         },
         children: [
@@ -49,8 +65,16 @@ class SideMenuState extends ConsumerState<SideMenu> {
                 style: textStyles.titleSmall),
           ),
           const NavigationDrawerDestination(
-            icon: Icon(Icons.home_outlined),
+            icon: Icon(Icons.home_mini_rounded),
+            label: Text('Home'),
+          ),
+          const NavigationDrawerDestination(
+            icon: Icon(Icons.image_search_rounded),
             label: Text('Productos'),
+          ),
+          const NavigationDrawerDestination(
+            icon: Icon(Icons.warehouse_rounded),
+            label: Text('Ordenes'),
           ),
           const Padding(
             padding: EdgeInsets.fromLTRB(28, 16, 28, 10),

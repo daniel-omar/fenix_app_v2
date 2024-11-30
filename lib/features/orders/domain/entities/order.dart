@@ -2,6 +2,7 @@
 
 import 'package:fenix_app_v2/features/orders/domain/entities/activity.dart';
 import 'package:fenix_app_v2/features/orders/domain/entities/client.dart';
+import 'package:fenix_app_v2/features/orders/domain/entities/order_detail.dart';
 import 'package:fenix_app_v2/features/orders/domain/entities/order_status.dart';
 
 class Order {
@@ -15,6 +16,7 @@ class Order {
   Client cliente;
   OrderStatus estadoOrden;
   Activity actividad;
+  List<OrderDetail>? ordersDetail;
 
   Order({
     required this.idOrden,
@@ -27,6 +29,7 @@ class Order {
     required this.cliente,
     required this.estadoOrden,
     required this.actividad,
+    this.ordersDetail,
   });
 
   Map<String, dynamic> toJson() => {

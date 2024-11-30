@@ -1,4 +1,5 @@
 import 'package:fenix_app_v2/features/home/presentation/screens/home_screen.dart';
+import 'package:fenix_app_v2/features/orders/presentation/screens/order_material_screen.dart';
 import 'package:fenix_app_v2/features/orders/presentation/screens/screens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -53,6 +54,14 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/order/:idOrden', // /product/new
         builder: (context, state) => OrderScreen(
+          idOrder: state.pathParameters['idOrden'] != null
+              ? int.parse(state.pathParameters['idOrden']!)
+              : 0,
+        ),
+      ),
+      GoRoute(
+        path: '/order_materials/:idOrden', // /product/new
+        builder: (context, state) => OrderMaterialScreen(
           idOrden: state.pathParameters['idOrden'] != null
               ? int.parse(state.pathParameters['idOrden']!)
               : 0,

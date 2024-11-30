@@ -6,18 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fenix_app_v2/features/shared/shared.dart';
-import 'package:go_router/go_router.dart';
 
-class OrderScreen extends ConsumerStatefulWidget {
-  final int idOrder;
-  const OrderScreen({super.key, required this.idOrder});
+class OrderMaterialSerialScreen extends ConsumerWidget {
+  final int idOrden;
 
-  @override
-  // ignore: library_private_types_in_public_api
-  _OrderScreen createState() => _OrderScreen();
-}
+  const OrderMaterialSerialScreen({super.key, required this.idOrden});
 
-class _OrderScreen extends ConsumerState<OrderScreen> {
   void showSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context)
@@ -25,20 +19,7 @@ class _OrderScreen extends ConsumerState<OrderScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final orderState = ref.watch(orderProvider);
 
     return GestureDetector(
@@ -80,7 +61,6 @@ class _OrderScreen extends ConsumerState<OrderScreen> {
                 : FloatingActionButton.extended(
                     onPressed: () {
                       if (orderState.order == null) return;
-                      context.push('/order_materials/${orderState.idOrden}');
                     },
                     label: const Text(
                       "Iniciar liquidación",

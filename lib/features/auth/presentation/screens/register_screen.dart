@@ -78,26 +78,26 @@ class _RegisterForm extends StatelessWidget {
           const Spacer(),
           // const SizedBox( height: 30 ),
 
-          const CustomTextFormField(
+           CustomTextFormField(
             label: 'Nombre completo',
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox( height: 30 ),
 
-          const CustomTextFormField(
+           CustomTextFormField(
             label: 'Correo',
             keyboardType: TextInputType.emailAddress,
           ),
           const SizedBox( height: 30 ),
 
-          const CustomTextFormField(
+           CustomTextFormField(
             label: 'Contraseña',
             obscureText: true,
           ),
     
           const SizedBox( height: 30 ),
 
-          const CustomTextFormField(
+           CustomTextFormField(
             label: 'Repita la contraseña',
             obscureText: true,
           ),

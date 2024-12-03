@@ -111,18 +111,18 @@ class _OrderMaterialSeriadoView
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(materialCategoryProvider.notifier).loadMaterialCategorys();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final orderState = ref.watch(orderProvider);
     final materialCategorys = ref.watch(materialCategorysProvider);
     final materialCategory = ref.watch(materialCategoryProvider);
     final materials =
         ref.watch(materialsProvider(materialCategory.idMaterialCategory));
+    final material = ref.watch(materialProvider);
     final double width = MediaQuery.of(context).size.width;
     //final textStyles = Theme.of(context).textTheme;
 
@@ -130,7 +130,7 @@ class _OrderMaterialSeriadoView
       children: [
         Column(
           children: [
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             if (!materialCategorys.isLoading)
               DropdownMenuCategoria(
                 width: width / 2,
@@ -140,6 +140,7 @@ class _OrderMaterialSeriadoView
                     .read(materialCategoryProvider.notifier)
                     .onCategoryChanged,
               ),
+            const SizedBox(height: 10),
             if (!materials.isLoading)
               DropdownMenuMaterial(
                 width: width / 2,
@@ -150,9 +151,12 @@ class _OrderMaterialSeriadoView
               ),
             const SizedBox(height: 10),
             ...orderState.orderMaterials!.map((e) {
-              return OrderMaterialSeriado(
-                  orderMaterial: e,
-                  index: orderState.orderMaterials!.indexOf(e));
+              return Container(
+                margin: const EdgeInsets.symmetric(vertical: 15),
+                child: OrderMaterialSeriado(
+                    orderMaterial: e,
+                    index: orderState.orderMaterials!.indexOf(e)),
+              );
             }),
           ],
         ),
@@ -163,10 +167,13 @@ class _OrderMaterialSeriadoView
             CustomElevatedIconButton(
               icon: Icons.add_box,
               onPressed: () {
-                ref.watch(orderProvider.notifier).addOrderMaterialSeriado();
+                ref.watch(orderProvider.notifier).addOrderMaterialSeriado(
+                    material.material!, materialCategory.idMaterialCategory);
               },
               text: "Agregar",
-              buttonColor: Colors.greenAccent,
+              buttonColor: colorScheme.primary,
+              textStyle: const TextStyle(color: Colors.white),
+              colorIcon: Colors.white,
             ),
             CustomElevatedIconButton(
               icon: Icons.remove,
@@ -175,6 +182,8 @@ class _OrderMaterialSeriadoView
               },
               text: "Limpiar",
               buttonColor: Colors.redAccent,
+              textStyle: const TextStyle(color: Colors.white),
+              colorIcon: Colors.white,
             ),
           ],
         )
@@ -187,7 +196,7 @@ class OrderMaterialSeriado extends ConsumerStatefulWidget {
   final OrderMaterial orderMaterial;
   final int index;
   const OrderMaterialSeriado(
-      {required this.orderMaterial, required this.index});
+      {super.key, required this.orderMaterial, required this.index});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -197,47 +206,69 @@ class OrderMaterialSeriado extends ConsumerStatefulWidget {
 class _OrderMaterialSeriado extends ConsumerState<OrderMaterialSeriado> {
   @override
   Widget build(BuildContext context) {
-    final orderState = ref.watch(orderProvider);
+    final colorScheme = Theme.of(context).colorScheme;
     final _orderMaterial = widget.orderMaterial;
-    final _index = widget.index;
+    final index = widget.index;
+    const TextStyle styleField =
+        TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+    const TextStyle styleFieldValue = TextStyle(fontSize: 16);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Column(
-          children: [
-            // if (!materialCategorys.isLoading)
-            //   DropdownMenuCategoria(
-            //     width: width / 2,
-            //     idCategoriaInitial: _orderMaterial.idCategoria,
-            //     materialCategorys: materialCategorys.materialCategorys!,
-            //     onSelected: ref.read(orderProvider.notifier).onChangedAnItem,
-            //     index: _index,
-            //   ),
-            // if (!materials.isLoading)
-            //   DropdownMenuMaterial(
-            //     width: width / 2,
-            //     idMaterialInitial: _orderMaterial.idMaterial,
-            //     idMaterialCategory: _orderMaterial.idCategoria,
-            //     materials: materials.materials!,
-            //     onSelected: ref.read(orderProvider.notifier).onChangedAnItem,
-            //     index: _index,
-            //   )
-
-            CustomTextFormField(
-              label: "GG",
-            )
-          ],
+    return Material(
+      // color: Colors.amber,
+      child: InkWell(
+        onTap: () {
+          //Navigator.of(context).pop(true);
+          //Navigator.of(context).pushNamed(menu.rutaMenu);
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          decoration: BoxDecoration(
+              color: colorScheme.primary.withAlpha(100),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const [
+                BoxShadow(
+                    color: Color(0x000005cc),
+                    blurRadius: 20,
+                    offset: Offset(10, 10))
+              ]),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      CustomTextFormField(
+                        readOnly: true,
+                        isTopField: true,
+                        label: 'Material',
+                        initialValue: _orderMaterial.material?.nombreMaterial,
+                        width: 250,
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  CustomTextFormField(
+                    label: "Número de serie",
+                    width: 250,
+                  ),
+                ],
+              ),
+              CustomElevatedIconButton(
+                icon: Icons.remove_circle_rounded,
+                onPressed: () {
+                  ref
+                      .watch(orderProvider.notifier)
+                      .removeOrderMaterialAnItem(index);
+                },
+                text: "",
+                buttonColor: Colors.greenAccent,
+              )
+            ],
+          ),
         ),
-        CustomElevatedIconButton(
-          icon: Icons.remove_circle_rounded,
-          onPressed: () {
-            ref.watch(orderProvider.notifier).removeOrderMaterialAnItem(_index);
-          },
-          text: "",
-          buttonColor: Colors.greenAccent,
-        )
-      ],
+      ),
     );
   }
 }
@@ -245,7 +276,7 @@ class _OrderMaterialSeriado extends ConsumerState<OrderMaterialSeriado> {
 class OrderMaterialNoSeriadoView extends ConsumerStatefulWidget {
   final Domain.Order order;
 
-  const OrderMaterialNoSeriadoView({required this.order});
+  const OrderMaterialNoSeriadoView({super.key, required this.order});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -307,6 +338,7 @@ class _DropdownMenuCategoriaState extends ConsumerState<DropdownMenuCategoria> {
   @override
   Widget build(BuildContext context) {
     return DropdownMenu<String>(
+      label: const Text("Categoria"),
       width: widget.width,
       initialSelection: widget.idCategoriaInitial!.toString(),
       onSelected: (String? value) {
@@ -362,6 +394,7 @@ class _DropdownMenuMaterialState extends ConsumerState<DropdownMenuMaterial> {
     // final materialCategoryState = ref.watch(materialCategoryProvider);
 
     return DropdownMenu<String>(
+      label: const Text("Material"),
       initialSelection: widget.idMaterialInitial!.toString(),
       width: widget.width,
       onSelected: (String? value) {

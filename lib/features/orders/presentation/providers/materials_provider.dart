@@ -25,8 +25,13 @@ class MaterialsNotifier extends StateNotifier<MaterialsState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final materials = await materialRepository
+      List<Material> materials = await materialRepository
           .getByFilters(idsMaterialCategory: [idMaterialCategory]);
+
+      // materials = [
+      //   Material(idMaterial: 0, codigoMaterial: "0", nombreMaterial: "Seleccione"),
+      //   ...materials
+      // ];
 
       state = state.copyWith(
         isLoading: false,

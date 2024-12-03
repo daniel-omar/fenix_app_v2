@@ -13,6 +13,10 @@ class CustomTextFormField extends StatefulWidget {
   final List<TextInputFormatter>? listTextInputFormatter;
   final IconData? suffixIcon;
   final String? initialValue;
+  final double? width;
+  final bool? isTopField; // La idea es que tenga bordes redondeados arriba
+  final bool? isBottomField;
+  final bool? readOnly;
 
   CustomTextFormField({
     super.key,
@@ -27,6 +31,10 @@ class CustomTextFormField extends StatefulWidget {
     this.listTextInputFormatter,
     this.suffixIcon,
     this.initialValue,
+    this.width,
+    this.isBottomField,
+    this.isTopField,
+    this.readOnly = false,
   });
 
   @override
@@ -46,12 +54,25 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
 
     return Container(
       // padding: const EdgeInsets.only(bottom: 0, top: 15),
+      width: widget.width,
       decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: const BorderRadius.only(
-              topLeft: borderRadius,
-              bottomLeft: borderRadius,
-              bottomRight: borderRadius),
+          borderRadius: BorderRadius.only(
+            topLeft: widget.isTopField == null || widget.isTopField == true
+                ? borderRadius
+                : Radius.zero,
+            topRight: widget.isTopField == null || widget.isTopField == true
+                ? borderRadius
+                : Radius.zero,
+            bottomLeft:
+                widget.isBottomField == null || widget.isBottomField == true
+                    ? borderRadius
+                    : Radius.zero,
+            bottomRight:
+                widget.isBottomField == null || widget.isBottomField == true
+                    ? borderRadius
+                    : Radius.zero,
+          ),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.06),
@@ -59,6 +80,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                 offset: const Offset(0, 5))
           ]),
       child: TextFormField(
+        readOnly: widget.readOnly!,
         initialValue: widget.initialValue,
         onChanged: widget.onChanged,
         inputFormatters: widget.listTextInputFormatter,
@@ -66,7 +88,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         onFieldSubmitted: widget.onFieldSubmitted,
         obscureText: widget.obscureText,
         keyboardType: widget.keyboardType,
-        style: const TextStyle(fontSize: 20, color: Colors.black54),
+        style: const TextStyle(fontSize: 16, color: Colors.black54),
         decoration: InputDecoration(
           floatingLabelStyle: const TextStyle(
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),

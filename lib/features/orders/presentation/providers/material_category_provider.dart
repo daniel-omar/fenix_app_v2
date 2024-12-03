@@ -25,25 +25,6 @@ class MaterialCategoryNotifier extends StateNotifier<MaterialCategoryState> {
     //required int? idMaterialCategory,
   }) : super(MaterialCategoryState(idMaterialCategory: 0));
 
-  Future<void> loadMaterialCategorys() async {
-    try {
-      state = state.copyWith(isLoading: true);
-
-      final materialCategorys = await materialCategoryRepository.getAll();
-
-      final materialCategory = materialCategorys.first;
-
-      state = state.copyWith(
-          isLoading: false,
-          materialCategorys: materialCategorys,
-          materialCategory: materialCategory,
-          idMaterialCategory: materialCategory.idCategoria);
-    } catch (e) {
-      // 404 product not found
-      print(e);
-    }
-  }
-
   void onCategoryChanged(int idMaterialCategory) {
     state = state.copyWith(idMaterialCategory: idMaterialCategory);
   }

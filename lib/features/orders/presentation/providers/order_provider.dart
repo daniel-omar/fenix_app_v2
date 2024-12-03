@@ -37,19 +37,29 @@ class OrderNotifier extends StateNotifier<OrderState> {
     }
   }
 
-  void addOrderMaterialSeriado() {
+  void addOrderMaterialSeriado(Material material, int idMaterialCategory) {
     try {
-      state = state.copyWith(isLoading: true);
-
+      if (material.idMaterial == 0 || idMaterialCategory == 0) {
+        return;
+      }
       List<OrderMaterial> orderMaterials = state.orderMaterials!;
+
+      if (orderMaterials
+          .where((x) => x.idMaterial == material.idMaterial)
+          .isNotEmpty) {
+        return;
+      }
+
+      state = state.copyWith(isLoading: true);
 
       state = state.copyWith(isLoading: false, orderMaterials: [
         ...orderMaterials,
         OrderMaterial(
-            idMaterial: 0,
-            idCategoria: 0,
+            idMaterial: material.idMaterial,
+            material: material,
+            idCategoria: idMaterialCategory,
             serie: "",
-            cantidad: 0,
+            cantidad: 1,
             esSeriado: true)
       ]);
     } catch (e) {

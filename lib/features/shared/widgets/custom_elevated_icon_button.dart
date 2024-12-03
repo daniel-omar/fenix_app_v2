@@ -5,20 +5,27 @@ class CustomElevatedIconButton extends StatelessWidget {
   final String? text;
   final Color? buttonColor;
   final IconData? icon;
+  final TextStyle? textStyle;
+  final Color? colorIcon;
 
   const CustomElevatedIconButton(
       {super.key,
       this.onPressed,
       this.text,
       required this.icon,
-      this.buttonColor});
+      this.buttonColor,
+      this.textStyle,
+      this.colorIcon});
 
   @override
   Widget build(BuildContext context) {
     const radius = Radius.circular(10);
 
     return ElevatedButton.icon(
-      icon: Icon(icon),
+      icon: Icon(
+        icon,
+        color: colorIcon,
+      ),
       style: ElevatedButton.styleFrom(
           backgroundColor: buttonColor,
           shape: const RoundedRectangleBorder(
@@ -28,7 +35,10 @@ class CustomElevatedIconButton extends StatelessWidget {
                   topLeft: radius,
                   topRight: radius))),
       onPressed: onPressed,
-      label: Text(text!),
+      label: Text(
+        text!,
+        style: textStyle,
+      ),
     );
   }
 }

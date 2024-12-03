@@ -14,6 +14,7 @@ class CustomProductField extends StatelessWidget {
   final Function(String)? onFieldSubmitted;
   final String? Function(String?)? validator;
   final bool? readOnly;
+  final double? width;
 
   const CustomProductField(
       {super.key,
@@ -29,7 +30,8 @@ class CustomProductField extends StatelessWidget {
       this.onChanged,
       this.onFieldSubmitted,
       this.validator,
-      this.readOnly = false});
+      this.readOnly = false,
+      this.width});
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,7 @@ class CustomProductField extends StatelessWidget {
     const borderRadius = Radius.circular(15);
 
     return Container(
+      width: width,
       padding: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: Colors.white,

@@ -14,4 +14,11 @@ class MaterialRepositoryImpl extends MaterialRepository {
   Future<List<Material>> getByFilters({List<int>? idsMaterialCategory}) {
     return datasource.getByFilters(idsMaterialCategory: idsMaterialCategory);
   }
+
+  @override
+  Future<List<MaterialCategory>> getListGroupByFilters(
+      {List<int>? idsMaterialCategory, bool? esSeriado}) {
+    return datasource.getListGroupByFilters(
+        idsMaterialCategory: idsMaterialCategory, esSeriado: esSeriado);
+  }
 }

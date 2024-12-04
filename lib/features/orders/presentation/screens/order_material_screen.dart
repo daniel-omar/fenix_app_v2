@@ -6,12 +6,15 @@ import 'package:fenix_app_v2/features/orders/presentation/providers/material_cat
 import 'package:fenix_app_v2/features/orders/presentation/providers/material_categorys_provider.dart';
 import 'package:fenix_app_v2/features/orders/presentation/providers/material_provider.dart';
 import 'package:fenix_app_v2/features/orders/presentation/providers/materials_provider.dart';
+import 'package:fenix_app_v2/features/orders/presentation/providers/order_materials_provider.dart';
 import 'package:fenix_app_v2/features/orders/presentation/providers/providers.dart';
 import 'package:fenix_app_v2/features/shared/widgets/custom_elevated_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fenix_app_v2/features/shared/shared.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class OrderMaterialScreen extends ConsumerStatefulWidget {
   final int idOrden;
@@ -111,13 +114,13 @@ class _OrderMaterialSeriadoView
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {});
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {});
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final orderState = ref.watch(orderProvider);
+    final orderMaterialsState = ref.watch(orderMaterialsSerialProvider);
     final materialCategorys = ref.watch(materialCategorysProvider);
     final materialCategory = ref.watch(materialCategoryProvider);
     final materials =
@@ -126,67 +129,86 @@ class _OrderMaterialSeriadoView
     final double width = MediaQuery.of(context).size.width;
     //final textStyles = Theme.of(context).textTheme;
 
-    return ListView(
+    return Column(
       children: [
-        Column(
-          children: [
-            const SizedBox(height: 20),
-            if (!materialCategorys.isLoading)
-              DropdownMenuCategoria(
-                width: width / 2,
-                idCategoriaInitial: 0,
-                materialCategorys: materialCategorys.materialCategorys!,
-                onSelected: ref
-                    .read(materialCategoryProvider.notifier)
-                    .onCategoryChanged,
+        Expanded(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              if (!materialCategorys.isLoading)
+                DropdownMenuCategoria(
+                  width: width / 2,
+                  idCategoriaInitial: materialCategory.idMaterialCategory,
+                  materialCategorys: materialCategorys.materialCategorys!,
+                  onSelected: ref
+                      .read(materialCategoryProvider.notifier)
+                      .onCategoryChanged,
+                ),
+              const SizedBox(height: 10),
+              if (!materials.isLoading)
+                DropdownMenuMaterial(
+                  width: width / 2,
+                  idMaterialInitial: material.idMaterial,
+                  materials: materials.materials!,
+                  onSelected:
+                      ref.read(materialProvider.notifier).onMaterialChanged,
+                ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: orderMaterialsState.orderMaterialsSerial?.length,
+                  // physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    final orderMaterial =
+                        orderMaterialsState.orderMaterialsSerial![index];
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 15),
+                      child: OrderMaterialSeriado(
+                          key: ValueKey(
+                              '${orderMaterial.idMaterial}-${orderMaterial.idCategoria}'),
+                          orderMaterial: orderMaterial,
+                          index: index),
+                    );
+                  },
+                ),
               ),
-            const SizedBox(height: 10),
-            if (!materials.isLoading)
-              DropdownMenuMaterial(
-                width: width / 2,
-                idMaterialInitial: 0,
-                materials: materials.materials!,
-                onSelected:
-                    ref.read(materialProvider.notifier).onMaterialChanged,
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  CustomElevatedIconButton(
+                    icon: Icons.add_box,
+                    onPressed: () {
+                      ref
+                          .watch(orderMaterialsSerialProvider.notifier)
+                          .addOrderMaterialSeriado(material.material!,
+                              materialCategory.idMaterialCategory);
+                    },
+                    text: "Agregar",
+                    buttonColor: colorScheme.primary,
+                    textStyle: const TextStyle(color: Colors.white),
+                    colorIcon: Colors.white,
+                  ),
+                  CustomElevatedIconButton(
+                    icon: Icons.remove,
+                    onPressed: () {
+                      ref
+                          .watch(orderMaterialsSerialProvider.notifier)
+                          .clearOrderMaterials(true);
+                    },
+                    text: "Limpiar",
+                    buttonColor: Colors.redAccent,
+                    textStyle: const TextStyle(color: Colors.white),
+                    colorIcon: Colors.white,
+                  ),
+                ],
               ),
-            const SizedBox(height: 10),
-            ...orderState.orderMaterials!.map((e) {
-              return Container(
-                margin: const EdgeInsets.symmetric(vertical: 15),
-                child: OrderMaterialSeriado(
-                    orderMaterial: e,
-                    index: orderState.orderMaterials!.indexOf(e)),
-              );
-            }),
-          ],
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            CustomElevatedIconButton(
-              icon: Icons.add_box,
-              onPressed: () {
-                ref.watch(orderProvider.notifier).addOrderMaterialSeriado(
-                    material.material!, materialCategory.idMaterialCategory);
-              },
-              text: "Agregar",
-              buttonColor: colorScheme.primary,
-              textStyle: const TextStyle(color: Colors.white),
-              colorIcon: Colors.white,
-            ),
-            CustomElevatedIconButton(
-              icon: Icons.remove,
-              onPressed: () {
-                ref.watch(orderProvider.notifier).clearOrderMaterials(true);
-              },
-              text: "Limpiar",
-              buttonColor: Colors.redAccent,
-              textStyle: const TextStyle(color: Colors.white),
-              colorIcon: Colors.white,
-            ),
-          ],
-        )
       ],
     );
   }
@@ -204,14 +226,37 @@ class OrderMaterialSeriado extends ConsumerStatefulWidget {
 }
 
 class _OrderMaterialSeriado extends ConsumerState<OrderMaterialSeriado> {
+  TextEditingController textEditingController = TextEditingController();
+  String serie = '';
+
+  @override
+  void initState() {
+    super.initState();
+    textEditingController.text = widget.orderMaterial.serie!;
+  }
+
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final _orderMaterial = widget.orderMaterial;
     final index = widget.index;
-    const TextStyle styleField =
-        TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+    // ignore: unused_local_variable
     const TextStyle styleFieldValue = TextStyle(fontSize: 16);
+
+    // ignore: no_leading_underscores_for_local_identifiers
+    void _changeSerie(String serie) {
+      setState(() {
+        textEditingController.text = serie;
+        ref
+            .watch(orderMaterialsSerialProvider.notifier)
+            .updateOrderMaterialAnItem(index, serie);
+      });
+    }
 
     return Material(
       // color: Colors.amber,
@@ -244,26 +289,59 @@ class _OrderMaterialSeriado extends ConsumerState<OrderMaterialSeriado> {
                         isTopField: true,
                         label: 'Material',
                         initialValue: _orderMaterial.material?.nombreMaterial,
-                        width: 250,
+                        width: 225,
                       )
                     ],
                   ),
                   const SizedBox(height: 10),
                   CustomTextFormField(
                     label: "Número de serie",
-                    width: 250,
+                    width: 225,
+                    textEditingController: textEditingController,
+                    onChanged: _changeSerie,
                   ),
                 ],
               ),
-              CustomElevatedIconButton(
-                icon: Icons.remove_circle_rounded,
-                onPressed: () {
-                  ref
-                      .watch(orderProvider.notifier)
-                      .removeOrderMaterialAnItem(index);
-                },
-                text: "",
-                buttonColor: Colors.greenAccent,
+              Column(
+                children: [
+                  SizedBox(
+                    width: 130,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        String? res = await SimpleBarcodeScanner.scanBarcode(
+                          context,
+                          barcodeAppBar: const BarcodeAppBar(
+                            appBarTitle: 'Test',
+                            centerTitle: false,
+                            enableBackButton: true,
+                            backButtonIcon: Icon(Icons.arrow_back_ios),
+                          ),
+                          isShowFlashIcon: true,
+                          delayMillis: 100,
+                          cameraFace: CameraFace.back,
+                          scanFormat: ScanFormat.ONLY_BARCODE,
+                        );
+                        serie = res as String;
+                        _changeSerie(serie);
+                      },
+                      child: const Text('Escanear'),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 130,
+                    child: CustomElevatedIconButton(
+                      icon: Icons.remove_circle_rounded,
+                      onPressed: () {
+                        ref
+                            .watch(orderMaterialsSerialProvider.notifier)
+                            .removeOrderMaterialAnItem(index);
+                      },
+                      text: "Remover",
+                      buttonColor: Colors.red.shade200,
+                      radius: const Radius.circular(30),
+                    ),
+                  )
+                ],
               )
             ],
           ),
@@ -286,22 +364,162 @@ class OrderMaterialNoSeriadoView extends ConsumerStatefulWidget {
 class _OrderMaterialNoSeriadoView
     extends ConsumerState<OrderMaterialNoSeriadoView> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ref
+          .read(orderMaterialsNotSerialProvider.notifier)
+          .getOrderMaterialsGroup();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final productDetail = ref.watch(orderProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+    final orderMaterialsNotSerialState =
+        ref.watch(orderMaterialsNotSerialProvider);
 
-    final textStyles = Theme.of(context).textTheme;
+    final double width = MediaQuery.of(context).size.width;
 
-    return ListView(
-      children: [
-        Center(
-          child: Text(
-            productDetail.order!.numeroOrden,
-            style: textStyles.titleSmall,
-            textAlign: TextAlign.center,
+    return orderMaterialsNotSerialState.orderMaterialsGroupNotSerial!.isNotEmpty
+        ? Column(
+            children: [
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: orderMaterialsNotSerialState
+                      .orderMaterialsGroupNotSerial!.length,
+                  // physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    final orderMaterialGroup = orderMaterialsNotSerialState
+                        .orderMaterialsGroupNotSerial![index];
+
+                    return ExpansionTile(
+                      title: Text(
+                          '${orderMaterialGroup.category!.nombreCategoria}'),
+                      initiallyExpanded: true,
+                      children: <Widget>[
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            SizedBox(
+                              width: 200.0,
+                              child: Center(child: Text("Material")),
+                            ),
+                            Center(child: Text("Cantidad")),
+                          ],
+                        ),
+                        ...orderMaterialGroup.materials!.map(
+                          (e) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 10),
+                              child: OrderMaterialNoSeriado(
+                                  key: ValueKey(
+                                      '${orderMaterialGroup.idCategoria}-${e.idMaterial}'),
+                                  orderMaterial: e,
+                                  index:
+                                      orderMaterialGroup.materials!.indexOf(e)),
+                            );
+                          },
+                        )
+                      ],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20)
+            ],
+          )
+        : const CircularProgressIndicator();
+  }
+}
+
+class OrderMaterialNoSeriado extends ConsumerStatefulWidget {
+  final OrderMaterial orderMaterial;
+  final int index;
+
+  const OrderMaterialNoSeriado(
+      {super.key, required this.orderMaterial, required this.index});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _OrderMaterialNoSeriado createState() => _OrderMaterialNoSeriado();
+}
+
+class _OrderMaterialNoSeriado extends ConsumerState<OrderMaterialNoSeriado> {
+  TextEditingController textEditingController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    textEditingController.text = widget.orderMaterial.cantidad.toString();
+  }
+
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    // ignore: no_leading_underscores_for_local_identifiers
+    final _orderMaterial = widget.orderMaterial;
+    final index = widget.index;
+    // ignore: unused_local_variable
+    const TextStyle styleFieldValue = TextStyle(fontSize: 16);
+
+    void _changeCantidad(String cantidad) {
+      setState(() {
+        textEditingController.text = cantidad;
+        ref
+            .watch(orderMaterialsNotSerialProvider.notifier)
+            .updateOrderMaterialAnItem(
+                _orderMaterial.idCategoria, index, int.parse(cantidad));
+      });
+    }
+
+    return Material(
+      // color: Colors.amber,
+      child: InkWell(
+        onTap: () {
+          //Navigator.of(context).pop(true);
+          //Navigator.of(context).pushNamed(menu.rutaMenu);
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+          decoration: BoxDecoration(
+              color: colorScheme.primary.withAlpha(100),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const [
+                BoxShadow(
+                    color: Color(0x000005cc),
+                    blurRadius: 20,
+                    offset: Offset(10, 10))
+              ]),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              CustomTextFormField(
+                readOnly: true,
+                isTopField: true,
+                initialValue: _orderMaterial.material?.nombreMaterial,
+                width: 225,
+              ),
+              CustomTextFormField(
+                isTopField: true,
+                //initialValue: _orderMaterial.cantidad.toString(),
+                width: 100,
+                textEditingController: textEditingController,
+                onChanged: _changeCantidad,
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 10)
-      ],
+      ),
     );
   }
 }

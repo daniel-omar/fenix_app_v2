@@ -17,25 +17,26 @@ class CustomTextFormField extends StatefulWidget {
   final bool? isTopField; // La idea es que tenga bordes redondeados arriba
   final bool? isBottomField;
   final bool? readOnly;
+  final TextEditingController? textEditingController;
 
-  CustomTextFormField({
-    super.key,
-    this.label,
-    this.hint,
-    this.errorMessage,
-    this.obscureText = false,
-    this.keyboardType = TextInputType.text,
-    this.onChanged,
-    this.onFieldSubmitted,
-    this.validator,
-    this.listTextInputFormatter,
-    this.suffixIcon,
-    this.initialValue,
-    this.width,
-    this.isBottomField,
-    this.isTopField,
-    this.readOnly = false,
-  });
+  CustomTextFormField(
+      {super.key,
+      this.label,
+      this.hint,
+      this.errorMessage,
+      this.obscureText = false,
+      this.keyboardType = TextInputType.text,
+      this.onChanged,
+      this.onFieldSubmitted,
+      this.validator,
+      this.listTextInputFormatter,
+      this.suffixIcon,
+      this.initialValue,
+      this.width,
+      this.isBottomField,
+      this.isTopField,
+      this.readOnly = false,
+      this.textEditingController});
 
   @override
   State<CustomTextFormField> createState() => _CustomTextFormFieldState();
@@ -80,6 +81,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                 offset: const Offset(0, 5))
           ]),
       child: TextFormField(
+        controller: widget.textEditingController,
         readOnly: widget.readOnly!,
         initialValue: widget.initialValue,
         onChanged: widget.onChanged,

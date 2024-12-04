@@ -23,3 +23,12 @@ class OrderMaterial {
         "cantidad": cantidad,
       };
 }
+
+class OrderMaterialGroup {
+  int idCategoria;
+  MaterialCategory? category;
+  List<OrderMaterial>? materials;
+
+  OrderMaterialGroup(
+      {required this.idCategoria, this.category, this.materials});
+}

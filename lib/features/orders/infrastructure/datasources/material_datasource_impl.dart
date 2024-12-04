@@ -49,4 +49,28 @@ class MaterialDatasourceImpl extends MaterialDatasource {
 
     return materials;
   }
+
+  @override
+  Future<List<MaterialCategory>> getListGroupByFilters(
+      {List<int>? idsMaterialCategory, bool? esSeriado}) async {
+    Map<String, dynamic> body = {};
+    if (esSeriado != null) {
+      body["es_seriado"] = esSeriado;
+    }
+
+    final response =
+        await dioClient.dio.get('/materials/material/getListGroup', data: body);
+    ResponseMain responseMain =
+        ResponseMainMapper.responseJsonToEntity(response.data);
+
+    final List<MaterialCategory> materialsCategory = [];
+
+    // ignore: no_leading_underscores_for_local_identifiers
+    for (final _material in responseMain.data ?? []) {
+      materialsCategory
+          .add(MaterialMapper.materialGroupJsonToEntity(_material));
+    }
+
+    return materialsCategory;
+  }
 }

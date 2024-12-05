@@ -7,15 +7,16 @@ class OrderMaterial {
   String? serie;
   bool? esSeriado;
   int cantidad;
+  bool? esSeleccionado;
 
-  OrderMaterial({
-    required this.idMaterial,
-    required this.idCategoria,
-    this.material,
-    this.serie,
-    this.esSeriado,
-    required this.cantidad,
-  });
+  OrderMaterial(
+      {required this.idMaterial,
+      required this.idCategoria,
+      this.material,
+      this.serie,
+      this.esSeriado,
+      required this.cantidad,
+      this.esSeleccionado = false});
 
   Map<String, dynamic> toJson() => {
         "id_material": idMaterial,

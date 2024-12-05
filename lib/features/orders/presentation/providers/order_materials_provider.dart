@@ -153,6 +153,21 @@ class OrderMaterialsNotSerialNotifier
 
     state = state.copyWith(orderMaterialsGroupNotSerial: orderMaterialsGroup);
   }
+
+  checkedOrderMaterialAnItem(
+      int idCategoria, int indexMaterial, bool esSeleccionado) {
+    OrderMaterialGroup orderMaterialGroup = state.orderMaterialsGroupNotSerial!
+        .firstWhere((x) => x.idCategoria == idCategoria);
+    orderMaterialGroup.materials![indexMaterial].esSeleccionado =
+        esSeleccionado;
+
+    List<OrderMaterialGroup> orderMaterialsGroup =
+        state.orderMaterialsGroupNotSerial!;
+    orderMaterialsGroup[orderMaterialsGroup.indexWhere(
+        (element) => element.idCategoria == idCategoria)] = orderMaterialGroup;
+
+    state = state.copyWith(orderMaterialsGroupNotSerial: orderMaterialsGroup);
+  }
 }
 
 class OrderMaterialsState {

@@ -37,6 +37,20 @@ class OrderNotifier extends StateNotifier<OrderState> {
     }
   }
 
+  addOrderMaterials(List<OrderMaterial> orderMaterialsSerial,
+      List<OrderMaterial> orderMaterialsNotSerial) {
+    state = state.copyWith(isLoading: true);
+
+    List<OrderMaterial> orderMaterials = [];
+    for (var orderMaterialSerial in orderMaterialsSerial) {
+      orderMaterials.add(orderMaterialSerial);
+    }
+    for (var orderMaterialNotSerial in orderMaterialsNotSerial) {
+      orderMaterials.add(orderMaterialNotSerial);
+    }
+
+    state = state.copyWith(isLoading: false, orderMaterials: orderMaterials);
+  }
 }
 
 class OrderState {

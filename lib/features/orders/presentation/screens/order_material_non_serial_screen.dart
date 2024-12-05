@@ -1,247 +1,202 @@
 import 'dart:io';
 
-import 'package:fenix_app_v2/features/orders/domain/entities/order.dart';
+import 'package:fenix_app_v2/features/orders/domain/domain.dart' as Domain;
 import 'package:fenix_app_v2/features/orders/presentation/providers/providers.dart';
+import 'package:fenix_app_v2/features/shared/widgets/custom_elevated_icon_button.dart';
+import 'package:fenix_app_v2/features/shared/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fenix_app_v2/features/shared/shared.dart';
+class OrderMaterialNoSeriadoView extends ConsumerStatefulWidget {
+  final Domain.Order order;
 
-class OrderScreen extends ConsumerWidget {
-  final int idOrden;
+  const OrderMaterialNoSeriadoView({super.key, required this.order});
 
-  const OrderScreen({super.key, required this.idOrden});
+  @override
+  // ignore: library_private_types_in_public_api
+  _OrderMaterialNoSeriadoView createState() => _OrderMaterialNoSeriadoView();
+}
 
-  void showSnackbar(BuildContext context) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Orden Actualizado')));
+class _OrderMaterialNoSeriadoView
+    extends ConsumerState<OrderMaterialNoSeriadoView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ref
+          .read(orderMaterialsNotSerialProvider.notifier)
+          .getOrderMaterialsGroup();
+    });
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final orderState = ref.watch(orderProvider);
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final orderMaterialsNotSerialState =
+        ref.watch(orderMaterialsNotSerialProvider);
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Detalle Orden'),
-          actions: [
-            IconButton(
-              onPressed: () async {
-                final photoPath =
-                    await CameraGalleryServiceImpl().selectPhoto();
-                if (photoPath == null) return;
+    final double width = MediaQuery.of(context).size.width;
 
-                //codigo;
-              },
-              icon: const Icon(Icons.photo_library_outlined),
-            ),
-            IconButton(
-              onPressed: () async {
-                final photoPath = await CameraGalleryServiceImpl().takePhoto();
-                if (photoPath == null) return;
+    return orderMaterialsNotSerialState.orderMaterialsGroupNotSerial!.isNotEmpty
+        ? Column(
+            children: [
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: orderMaterialsNotSerialState
+                      .orderMaterialsGroupNotSerial!.length,
+                  // physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    final orderMaterialGroup = orderMaterialsNotSerialState
+                        .orderMaterialsGroupNotSerial![index];
 
-                //codigo
-              },
-              icon: const Icon(Icons.camera_alt_outlined),
-            )
-          ],
-        ),
-        body: orderState.isLoading
-            ? const FullScreenLoader()
-            : _OrderView(
-                order: orderState.order!,
+                    return ExpansionTile(
+                      title: Text(
+                          '${orderMaterialGroup.category!.nombreCategoria}'),
+                      initiallyExpanded: true,
+                      children: <Widget>[
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Center(child: Text("")),
+                            SizedBox(
+                              width: 180.0,
+                              child: Center(child: Text("Material")),
+                            ),
+                            Center(child: Text("Cantidad")),
+                          ],
+                        ),
+                        ...orderMaterialGroup.materials!.map(
+                          (e) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 10),
+                              child: OrderMaterialNoSeriado(
+                                  key: ValueKey(
+                                      '${orderMaterialGroup.idCategoria}-${e.idMaterial}'),
+                                  orderMaterial: e,
+                                  index:
+                                      orderMaterialGroup.materials!.indexOf(e)),
+                            );
+                          },
+                        )
+                      ],
+                    );
+                  },
+                ),
               ),
-        floatingActionButton: orderState.isLoading
-            ? null
-            : (orderState.order!.estadoOrden.idEstadoOrden != 2
-                ? null
-                : FloatingActionButton.extended(
-                    onPressed: () {
-                      if (orderState.order == null) return;
-                    },
-                    label: const Text(
-                      "Iniciar liquidación",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  )),
-      ),
-    );
-  }
-}
-
-class _OrderView extends ConsumerWidget {
-  final Order order;
-
-  const _OrderView({required this.order});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final productDetail = ref.watch(orderProvider);
-
-    final textStyles = Theme.of(context).textTheme;
-
-    return ListView(
-      children: [
-        Center(
-          child: Text(
-            productDetail.order!.numeroOrden,
-            style: textStyles.titleSmall,
-            textAlign: TextAlign.center,
-          ),
-        ),
-        const SizedBox(height: 10),
-        _OrderInformation(order: order),
-      ],
-    );
-  }
-}
-
-class _OrderInformation extends ConsumerWidget {
-  final Order order;
-  const _OrderInformation({required this.order});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Generales'),
-          const SizedBox(height: 10),
-          CustomProductField(
-            readOnly: true,
-            isTopField: true,
-            label: 'Cliente',
-            initialValue:
-                "${order.cliente.nombreCliente} ${order.cliente.apellidoPaterno} ${order.cliente.apellidoMaterno}",
-          ),
-          const SizedBox(height: 10),
-          CustomProductField(
-            readOnly: true,
-            isTopField: true,
-            label: 'Actividad',
-            initialValue: order.actividad.nombreActividad,
-          ),
-          const SizedBox(height: 10),
-          CustomProductField(
-            readOnly: true,
-            isTopField: true,
-            label: 'Estado',
-            initialValue: order.estadoOrden.nombreEstado,
+              const SizedBox(height: 20)
+            ],
           )
-        ],
-      ),
-    );
+        : const CircularProgressIndicator();
   }
 }
 
-class _SizeSelector extends StatelessWidget {
-  final List<String> selectedSizes;
-  final List<String> sizes = const ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+class OrderMaterialNoSeriado extends ConsumerStatefulWidget {
+  final Domain.OrderMaterial orderMaterial;
+  final int index;
 
-  final void Function(List<String> selectedSizes) onSizesChanged;
-
-  const _SizeSelector({
-    required this.selectedSizes,
-    required this.onSizesChanged,
-  });
+  const OrderMaterialNoSeriado(
+      {super.key, required this.orderMaterial, required this.index});
 
   @override
-  Widget build(BuildContext context) {
-    return SegmentedButton(
-      emptySelectionAllowed: true,
-      showSelectedIcon: false,
-      segments: sizes.map((size) {
-        return ButtonSegment(
-            value: size,
-            label: Text(size, style: const TextStyle(fontSize: 10)));
-      }).toList(),
-      selected: Set.from(selectedSizes),
-      onSelectionChanged: (newSelection) {
-        FocusScope.of(context).unfocus();
-        onSizesChanged(List.from(newSelection));
-      },
-      multiSelectionEnabled: true,
-    );
-  }
+  // ignore: library_private_types_in_public_api
+  _OrderMaterialNoSeriado createState() => _OrderMaterialNoSeriado();
 }
 
-class _GenderSelector extends StatelessWidget {
-  final String selectedGender;
-  final void Function(String selectedGender) onGenderChanged;
-
-  final List<String> genders = const ['men', 'women', 'kid'];
-  final List<IconData> genderIcons = const [
-    Icons.man,
-    Icons.woman,
-    Icons.boy,
-  ];
-
-  const _GenderSelector(
-      {required this.selectedGender, required this.onGenderChanged});
+class _OrderMaterialNoSeriado extends ConsumerState<OrderMaterialNoSeriado> {
+  TextEditingController textEditingController = TextEditingController();
+  bool? esSeleccionado = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SegmentedButton(
-        multiSelectionEnabled: false,
-        showSelectedIcon: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: genders.map((size) {
-          return ButtonSegment(
-              icon: Icon(genderIcons[genders.indexOf(size)]),
-              value: size,
-              label: Text(size, style: const TextStyle(fontSize: 12)));
-        }).toList(),
-        selected: {selectedGender},
-        onSelectionChanged: (newSelection) {
-          FocusScope.of(context).unfocus();
-          onGenderChanged(newSelection.first);
-        },
-      ),
-    );
+  void initState() {
+    super.initState();
+    textEditingController.text = widget.orderMaterial.cantidad.toString();
+    esSeleccionado = widget.orderMaterial.esSeleccionado;
   }
-}
 
-class _ImageGallery extends StatelessWidget {
-  final List<String> images;
-  const _ImageGallery({required this.images});
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (images.isEmpty) {
-      return ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
-          child: Image.asset('assets/images/no-image.jpg', fit: BoxFit.cover));
+    final colorScheme = Theme.of(context).colorScheme;
+    // ignore: no_leading_underscores_for_local_identifiers
+    final _orderMaterial = widget.orderMaterial;
+    final index = widget.index;
+    // ignore: unused_local_variable
+    const TextStyle styleFieldValue = TextStyle(fontSize: 16);
+
+    void _changeCantidad(String cantidad) {
+      setState(() {
+        textEditingController.text = cantidad;
+        ref
+            .watch(orderMaterialsNotSerialProvider.notifier)
+            .updateOrderMaterialAnItem(
+                _orderMaterial.idCategoria, index, int.parse(cantidad));
+      });
     }
 
-    return PageView(
-      scrollDirection: Axis.horizontal,
-      controller: PageController(viewportFraction: 0.7),
-      children: images.map((image) {
-        late ImageProvider imageProvider;
-        if (image.startsWith('http')) {
-          imageProvider = NetworkImage(image);
-        } else {
-          imageProvider = FileImage(File(image));
-        }
+    void _changeSeleccionado(bool esSeleccionado) {
+      setState(() {
+        this.esSeleccionado = esSeleccionado;
+        ref
+            .watch(orderMaterialsNotSerialProvider.notifier)
+            .checkedOrderMaterialAnItem(
+                _orderMaterial.idCategoria, index, esSeleccionado);
+      });
+    }
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(20)),
-              child: FadeInImage(
-                fit: BoxFit.cover,
-                image: imageProvider,
-                placeholder:
-                    const AssetImage('assets/loaders/bottle-loader.gif'),
-              )),
-        );
-      }).toList(),
+    return Material(
+      // color: Colors.amber,
+      child: InkWell(
+        onTap: () {
+          //Navigator.of(context).pop(true);
+          //Navigator.of(context).pushNamed(menu.rutaMenu);
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+          decoration: BoxDecoration(
+              color: colorScheme.primary.withAlpha(100),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const [
+                BoxShadow(
+                    color: Color(0x000005cc),
+                    blurRadius: 20,
+                    offset: Offset(10, 10))
+              ]),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Checkbox(
+                checkColor: Colors.white,
+                //fillColor: MaterialStateProperty.resolveWith(getColor),
+                value: esSeleccionado,
+                onChanged: (bool? value) {
+                  _changeSeleccionado(value!);
+                },
+              ),
+              CustomTextFormField(
+                readOnly: true,
+                isTopField: true,
+                initialValue: _orderMaterial.material?.nombreMaterial,
+                width: 210,
+              ),
+              CustomTextFormField(
+                isTopField: true,
+                //initialValue: _orderMaterial.cantidad.toString(),
+                width: 70,
+                textEditingController: textEditingController,
+                onChanged: _changeCantidad,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

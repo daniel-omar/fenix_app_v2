@@ -70,7 +70,7 @@ class _OrderMaterialScreen extends ConsumerState<OrderMaterialScreen>
       }
       if (orderMaterialsNotSerial.isEmpty) {
         showSnackbar(context,
-            "Debe seleccionar al menos 1 mataerial no seriado para liquidación.");
+            "Debe seleccionar al menos 1 material no seriado para liquidación.");
         return;
       }
 
@@ -78,7 +78,7 @@ class _OrderMaterialScreen extends ConsumerState<OrderMaterialScreen>
           .watch(orderProvider.notifier)
           .addOrderMaterials(orderMaterialsSerial, orderMaterialsNotSerial);
 
-      context.push('/order_client/${orderState.idOrden}');
+      context.push('/order_materials_used/${orderState.idOrden}');
     }
 
     return GestureDetector(

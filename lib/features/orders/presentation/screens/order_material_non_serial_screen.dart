@@ -131,6 +131,14 @@ class _OrderMaterialNoSeriado extends ConsumerState<OrderMaterialNoSeriado> {
     const TextStyle styleFieldValue = TextStyle(fontSize: 16);
 
     void _changeCantidad(String cantidad) {
+      if (cantidad.startsWith("0")) {
+        cantidad = cantidad.replaceFirst("0", "");
+      }
+
+      if (cantidad == "") {
+        cantidad = "0";
+      }
+
       setState(() {
         textEditingController.text = cantidad;
         ref

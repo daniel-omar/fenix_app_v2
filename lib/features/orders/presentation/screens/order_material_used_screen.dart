@@ -72,32 +72,63 @@ class __OrderMaterialUsedViewState
       children: [
         const SizedBox(height: 20),
         Expanded(
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: orderState.orderMaterials!.length,
-            // physics: NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              final orderMaterial = orderState.orderMaterials![index];
-              if (index == 0) {
-                return const ListTile(
-                  onTap: null,
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                  ),
-                  title: Row(children: <Widget>[
-                    SizedBox(
-                      width: 200.0,
-                      child: Center(child: Text("Material")),
+            child: SingleChildScrollView(
+          //scrollDirection: Axis.horizontal,
+          child: DataTable(
+              columns: const <DataColumn>[
+                DataColumn(
+                    label: Text(
+                      "Material",
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Expanded(child: Text("Cantidad"))
-                  ]),
-                );
-              } else {
-                return _OrderMaterialItem(orderMaterial: orderMaterial);
-              }
-            },
-          ),
-        ),
+                    tooltip: "Descripción"),
+                DataColumn(
+                    label: Text(
+                      "Cantidad",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    tooltip: "Cantidad")
+              ],
+              rows: orderState.orderMaterials!
+                  .map((orderMaterial) => DataRow(cells: [
+                        DataCell(
+                          Text(orderMaterial.material!.nombreMaterial),
+                        ),
+                        DataCell(
+                          Text(orderMaterial.cantidad.toString()),
+                        )
+                      ]))
+                  .toList()),
+        )
+
+            // ListView.builder(
+            //   shrinkWrap: true,
+            //   itemCount: orderState.orderMaterials!.length,
+            //   // physics: NeverScrollableScrollPhysics(),
+            //   itemBuilder: (context, index) {
+            //     final orderMaterial = orderState.orderMaterials![index];
+            //     if (index == 0) {
+            //       //index = index - 1;
+            //       return const ListTile(
+            //         onTap: null,
+            //         leading: CircleAvatar(
+            //           backgroundColor: Colors.transparent,
+            //         ),
+            //         title: Row(children: <Widget>[
+            //           SizedBox(
+            //             width: 200.0,
+            //             child: Center(child: Text("Material")),
+            //           ),
+            //           Expanded(child: Text("Cantidad"))
+            //         ]),
+            //       );
+            //       return _OrderMaterialItem(orderMaterial: orderMaterial);
+            //     } else {
+            //       return _OrderMaterialItem(orderMaterial: orderMaterial);
+            //     }
+            //   },
+            // ),
+            ),
         const SizedBox(height: 20)
       ],
     );

@@ -5,6 +5,7 @@ import 'package:fenix_app_v2/features/orders/presentation/providers/providers.da
 import 'package:fenix_app_v2/features/shared/widgets/custom_elevated_icon_button.dart';
 import 'package:fenix_app_v2/features/shared/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OrderMaterialNoSeriadoView extends ConsumerStatefulWidget {
@@ -197,6 +198,9 @@ class _OrderMaterialNoSeriado extends ConsumerState<OrderMaterialNoSeriado> {
               CustomTextFormField(
                 isTopField: true,
                 //initialValue: _orderMaterial.cantidad.toString(),
+                listTextInputFormatter: [
+                  FilteringTextInputFormatter.digitsOnly
+                ],
                 width: 70,
                 textEditingController: textEditingController,
                 onChanged: _changeCantidad,

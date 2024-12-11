@@ -1,6 +1,4 @@
-import 'package:fenix_app_v2/config/config.dart';
 import 'package:fenix_app_v2/features/orders/domain/entities/activity.dart';
-import 'package:fenix_app_v2/features/orders/domain/entities/activity_category.dart';
 import 'package:fenix_app_v2/features/orders/infrastructure/mappers/activity_category_mapper.dart';
 
 class ActivityMapper {

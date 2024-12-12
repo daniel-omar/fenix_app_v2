@@ -198,6 +198,7 @@ class _OrderMaterialNoSeriado extends ConsumerState<OrderMaterialNoSeriado> {
               CustomTextFormField(
                 isTopField: true,
                 //initialValue: _orderMaterial.cantidad.toString(),
+                keyboardType: TextInputType.number,
                 listTextInputFormatter: [
                   FilteringTextInputFormatter.digitsOnly
                 ],

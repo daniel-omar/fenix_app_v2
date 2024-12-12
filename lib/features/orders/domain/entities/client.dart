@@ -5,8 +5,8 @@ class Client {
   String nombreCliente;
   String apellidoPaterno;
   String apellidoMaterno;
-  String numeroTelefono;
-  String correo;
+  String? numeroTelefono;
+  String? correo;
 
   Client({
     required this.idCliente,
@@ -15,8 +15,8 @@ class Client {
     required this.nombreCliente,
     required this.apellidoPaterno,
     required this.apellidoMaterno,
-    required this.numeroTelefono,
-    required this.correo,
+    this.numeroTelefono,
+    this.correo,
   });
 
   Map<String, dynamic> toJson() => {

@@ -3,28 +3,28 @@ import 'package:fenix_app_v2/features/shared/infrastructure/inputs/inputs.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
-final clientFormProvider = StateNotifierProvider.autoDispose
-    .family<ClientFormNotifier, ClientFormState, Client>((ref, client) {
-  return ClientFormNotifier(
-    client: client,
-  );
+final clientFormProvider =
+    StateNotifierProvider.autoDispose<ClientFormNotifier, ClientFormState>(
+        (ref) {
+  return ClientFormNotifier();
 });
 
 class ClientFormNotifier extends StateNotifier<ClientFormState> {
-  ClientFormNotifier({
-    required Client client,
-  }) : super(
-          ClientFormState(
-              idCliente: client.idCliente,
-              idTipoDocumento: client.idTipoDocumento,
-              numeroDocumento: Phone.dirty(client.numeroDocumento),
-              nombre: Title.dirty(client.nombreCliente),
-              apellidos: Title.dirty(client.apellidoPaterno),
-              numeroTelefono: Phone.dirty(client.numeroTelefono),
-              numeroTelefono2: Phone.dirty(''),
-              correo: Email.dirty(client.correo),
-              parentesco: ''),
-        );
+  ClientFormNotifier() : super(ClientFormState());
+
+  initForm(Client client) {
+    ClientFormState(
+        idCliente: client.idCliente,
+        idTipoDocumento: client.idTipoDocumento,
+        numeroDocumento: Phone.dirty(client.numeroDocumento),
+        nombre: Title.dirty(client.nombreCliente),
+        apellidos: Title.dirty(client.apellidoPaterno),
+        numeroTelefono: Phone.dirty(
+            client.numeroTelefono == null ? "" : client.numeroTelefono!),
+        numeroTelefono2: const Phone.dirty(''),
+        correo: Email.dirty(client.correo == null ? "" : client.correo!),
+        parentesco: '');
+  }
 
   Future<bool> onFormSubmit() async {
     _touchedEverything();
@@ -38,7 +38,7 @@ class ClientFormNotifier extends StateNotifier<ClientFormState> {
       isFormValid: Formz.validate([
         Phone.dirty(state.numeroDocumento.value),
         Title.dirty(state.nombre.value),
-        Title.dirty(state.apellidos.value),
+        //Title.dirty(state.apellidos.value),
         Phone.dirty(state.numeroTelefono.value),
         Email.dirty(state.correo.value),
       ]),
@@ -46,78 +46,43 @@ class ClientFormNotifier extends StateNotifier<ClientFormState> {
   }
 
   void onNombreChanged(String value) {
-    state = state.copyWith(
-        nombre: Title.dirty(value),
-        isFormValid: Formz.validate([
-          Phone.dirty(state.numeroDocumento.value),
-          Title.dirty(state.apellidos.value),
-          Phone.dirty(state.numeroTelefono.value),
-          Email.dirty(state.correo.value),
-        ]));
+    state = state.copyWith(nombre: Title.dirty(value));
+    _touchedEverything();
   }
 
   void onApellidosChanged(String value) {
-    state = state.copyWith(
-        apellidos: Title.dirty(value),
-        isFormValid: Formz.validate([
-          Phone.dirty(state.numeroDocumento.value),
-          Title.dirty(state.nombre.value),
-          Phone.dirty(state.numeroTelefono.value),
-          Email.dirty(state.correo.value),
-        ]));
+    state = state.copyWith(apellidos: Title.dirty(value));
+    _touchedEverything();
   }
 
   void onNumeroDocumentoChanged(String value) {
-    state = state.copyWith(
-        numeroDocumento: Phone.dirty(value),
-        isFormValid: Formz.validate([
-          Title.dirty(state.nombre.value),
-          Title.dirty(state.apellidos.value),
-          Phone.dirty(state.numeroTelefono.value),
-          Email.dirty(state.correo.value),
-        ]));
+    state = state.copyWith(numeroDocumento: Phone.dirty(value));
+    _touchedEverything();
   }
 
   void onTelefonoChanged(String value) {
-    state = state.copyWith(
-        numeroTelefono: Phone.dirty(value),
-        isFormValid: Formz.validate([
-          Title.dirty(state.nombre.value),
-          Title.dirty(state.apellidos.value),
-          Phone.dirty(state.numeroDocumento.value),
-          Email.dirty(state.correo.value),
-        ]));
+    state = state.copyWith(numeroTelefono: Phone.dirty(value));
+    _touchedEverything();
   }
 
   void onTelefono2Changed(String value) {
-    state = state.copyWith(
-        numeroTelefono2: Phone.dirty(value),
-        isFormValid: Formz.validate([
-          Title.dirty(state.nombre.value),
-          Title.dirty(state.apellidos.value),
-          Phone.dirty(state.numeroDocumento.value),
-          Phone.dirty(state.numeroTelefono.value),
-          Email.dirty(state.correo.value),
-        ]));
+    state = state.copyWith(numeroTelefono2: Phone.dirty(value));
+    _touchedEverything();
   }
 
   void onCorreoChanged(String value) {
-    state = state.copyWith(
-        correo: Email.dirty(value),
-        isFormValid: Formz.validate([
-          Title.dirty(state.nombre.value),
-          Title.dirty(state.apellidos.value),
-          Phone.dirty(state.numeroDocumento.value),
-          Phone.dirty(state.numeroTelefono.value),
-        ]));
+    state = state.copyWith(correo: Email.dirty(value));
+    _touchedEverything();
   }
 
   void onTipoDocumentoChanged(int idTipoDocumento) {
     state = state.copyWith(idTipoDocumento: idTipoDocumento);
+    _touchedEverything();
   }
 
   void onParentescoChanged(String parenteso) {
     state = state.copyWith(parentesco: parenteso);
+    _touchedEverything();
   }
 }
 

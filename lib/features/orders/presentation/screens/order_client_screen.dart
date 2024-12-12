@@ -85,8 +85,17 @@ class _OrderView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productDetail = ref.watch(orderProvider);
-
     final textStyles = Theme.of(context).textTheme;
+    final client = Client(
+        idCliente: 0,
+        idTipoDocumento: 1,
+        numeroDocumento: '',
+        nombreCliente: '',
+        apellidoPaterno: '',
+        apellidoMaterno: '',
+        numeroTelefono: '',
+        correo: '');
+    final clientForm = ref.read(clientFormProvider.notifier).initForm(client);
 
     return ListView(
       children: [
@@ -120,7 +129,7 @@ class _OrderInformation extends ConsumerWidget {
         numeroTelefono: '',
         correo: '');
     final documentTypes = ref.watch(documentTypesProvider);
-    final clientForm = ref.watch(clientFormProvider(client));
+    final clientForm = ref.watch(clientFormProvider);
     final double width = MediaQuery.of(context).size.width;
 
     return Padding(
@@ -134,8 +143,7 @@ class _OrderInformation extends ConsumerWidget {
             isTopField: true,
             label: 'Nombre',
             initialValue: clientForm.nombre.value,
-            onChanged:
-                ref.read(clientFormProvider(client).notifier).onNombreChanged,
+            onChanged: ref.read(clientFormProvider.notifier).onNombreChanged,
             errorMessage: clientForm.nombre.errorMessage,
           ),
           const SizedBox(height: 10),
@@ -143,9 +151,7 @@ class _OrderInformation extends ConsumerWidget {
             isTopField: true,
             label: 'Apellidos',
             initialValue: clientForm.apellidos.value,
-            onChanged: ref
-                .read(clientFormProvider(client).notifier)
-                .onApellidosChanged,
+            onChanged: ref.read(clientFormProvider.notifier).onApellidosChanged,
             errorMessage: clientForm.apellidos.errorMessage,
           ),
           const SizedBox(height: 10),
@@ -153,39 +159,38 @@ class _OrderInformation extends ConsumerWidget {
             DropdownTipoDocumento(
                 documentTypes: documentTypes.documentTypes!,
                 onSelected: ref
-                    .read(clientFormProvider(client).notifier)
+                    .read(clientFormProvider.notifier)
                     .onTipoDocumentoChanged,
                 width: width),
           const SizedBox(height: 10),
           CustomTextFormField(
             isTopField: true,
             label: 'Nro Documento',
+            keyboardType: TextInputType.number,
             listTextInputFormatter: [FilteringTextInputFormatter.digitsOnly],
             initialValue: clientForm.numeroDocumento.value,
-            onChanged: ref
-                .read(clientFormProvider(client).notifier)
-                .onNumeroDocumentoChanged,
+            onChanged:
+                ref.read(clientFormProvider.notifier).onNumeroDocumentoChanged,
             errorMessage: clientForm.numeroDocumento.errorMessage,
           ),
           const SizedBox(height: 10),
           CustomTextFormField(
             isTopField: true,
             label: 'Nro contacto',
+            keyboardType: TextInputType.number,
             listTextInputFormatter: [FilteringTextInputFormatter.digitsOnly],
             initialValue: clientForm.numeroTelefono.value,
-            onChanged:
-                ref.read(clientFormProvider(client).notifier).onTelefonoChanged,
+            onChanged: ref.read(clientFormProvider.notifier).onTelefonoChanged,
             errorMessage: clientForm.numeroTelefono.errorMessage,
           ),
           const SizedBox(height: 10),
           CustomTextFormField(
             isTopField: true,
             label: 'Nro contacto emergencia',
+            keyboardType: TextInputType.number,
             listTextInputFormatter: [FilteringTextInputFormatter.digitsOnly],
             initialValue: clientForm.numeroTelefono2.value,
-            onChanged: ref
-                .read(clientFormProvider(client).notifier)
-                .onTelefono2Changed,
+            onChanged: ref.read(clientFormProvider.notifier).onTelefono2Changed,
             errorMessage: clientForm.numeroTelefono2.errorMessage,
           ),
           const SizedBox(height: 10),
@@ -193,16 +198,14 @@ class _OrderInformation extends ConsumerWidget {
             isTopField: true,
             label: 'Correo',
             initialValue: clientForm.correo.value,
-            onChanged:
-                ref.read(clientFormProvider(client).notifier).onCorreoChanged,
+            onChanged: ref.read(clientFormProvider.notifier).onCorreoChanged,
             errorMessage: clientForm.correo.errorMessage,
           ),
           const SizedBox(height: 10),
           if (!documentTypes.isLoading)
             DropdownParentesco(
-                onSelected: ref
-                    .read(clientFormProvider(client).notifier)
-                    .onParentescoChanged,
+                onSelected:
+                    ref.read(clientFormProvider.notifier).onParentescoChanged,
                 width: width),
         ],
       ),

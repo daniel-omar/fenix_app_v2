@@ -8,7 +8,11 @@ class DioClient {
   }
 
   final Dio dio = Dio(
-    BaseOptions(baseUrl: Environment.apiUrl),
+    BaseOptions(
+      baseUrl: Environment.apiUrl,
+      connectTimeout: const Duration(milliseconds: 5000*6),
+      receiveTimeout: const Duration(milliseconds: 5000*6),
+    ),
   );
 
   void addInterceptor(Interceptor interceptor) {

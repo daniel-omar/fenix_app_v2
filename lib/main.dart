@@ -10,7 +10,7 @@ void main() async {
   );
 
   await Environment.initEnvironment();
-
+ 
   runApp(const ProviderScope(child: MainApp()));
 }
 

@@ -271,7 +271,7 @@ class _OrderMaterialSeriado extends ConsumerState<OrderMaterialSeriado> {
                           cameraFace: CameraFace.back,
                           scanFormat: ScanFormat.ONLY_BARCODE,
                         );
-                        serie = res as String;
+                        serie = res!;
                         _changeSerie(serie);
                       },
                       child: const Text('Escanear'),

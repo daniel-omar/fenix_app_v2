@@ -87,13 +87,15 @@ class _LoginForm extends ConsumerWidget {
           const SizedBox(height: 30),
           CustomTextFormField(
             label: 'Contraseña',
-            obscureText: true,
+            obscureText: loginForm.isObscurePassword,
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
             onFieldSubmitted: (_) =>
                 ref.read(loginFormProvider.notifier).onFormSubmit(),
             errorMessage:
                 loginForm.isFormPosted ? loginForm.password.errorMessage : null,
             listTextInputFormatter: [NoSpaceFormatter()],
+            hasSufix: true, 
+            onSufix: ref.read(loginFormProvider.notifier).onSufix,
             suffixIcon: Icons.remove_red_eye,
           ),
           const SizedBox(height: 30),

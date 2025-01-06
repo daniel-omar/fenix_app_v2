@@ -32,9 +32,7 @@ class AuthDataSourceImpl extends AuthDataSource {
       final response = await dioClient.dio.post('/auth/login',
           data: {'correo': email, 'clave': password},
           options: Options(
-            headers: {
-              "is_auth": true,
-            },
+            headers: {"is_auth": true},
           ));
 
       ResponseMain responseMain =

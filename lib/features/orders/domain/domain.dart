@@ -15,3 +15,4 @@ export 'entities/material_category.dart';
 export 'repositories/order_repository.dart';
 export 'repositories/material_category_repository.dart';
 export 'repositories/material_repository.dart';
+export 'repositories/customer_order_repository.dart';

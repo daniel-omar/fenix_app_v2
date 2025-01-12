@@ -9,7 +9,7 @@ class OrderClient {
   String numeroTelefono;
   String? numeroTelefono2;
   String? correo;
-  String parenteso;
+  String? parenteso;
 
   OrderClient({
     required this.idOrden,
@@ -20,7 +20,7 @@ class OrderClient {
     required this.numeroTelefono,
     this.numeroTelefono2,
     this.correo,
-    required this.parenteso,
+    this.parenteso
   });
 
   Map<String, dynamic> toJson() => {

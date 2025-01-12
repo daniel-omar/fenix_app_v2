@@ -106,27 +106,18 @@ class _OrderView extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _OrderInformation(order: order),
+        _OrderClientInformation(order: order),
       ],
     );
   }
 }
 
-class _OrderInformation extends ConsumerWidget {
+class _OrderClientInformation extends ConsumerWidget {
   final Order order;
-  const _OrderInformation({required this.order});
+  const _OrderClientInformation({required this.order});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final client = Client(
-        idCliente: 0,
-        idTipoDocumento: 1,
-        numeroDocumento: '',
-        nombreCliente: '',
-        apellidoPaterno: '',
-        apellidoMaterno: '',
-        numeroTelefono: '',
-        correo: '');
     final documentTypes = ref.watch(documentTypesProvider);
     final clientForm = ref.watch(clientFormProvider);
     final double width = MediaQuery.of(context).size.width;

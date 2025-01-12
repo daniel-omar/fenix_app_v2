@@ -1,6 +1,9 @@
+import 'package:fenix_app_v2/features/orders/domain/entities/document_type.dart';
+
 class Client {
   int idCliente;
-  int idTipoDocumento;
+  int? idTipoDocumento;
+  DocumentType? tipoDocumento;
   String numeroDocumento;
   String nombreCliente;
   String apellidoPaterno;
@@ -10,7 +13,8 @@ class Client {
 
   Client({
     required this.idCliente,
-    required this.idTipoDocumento,
+    this.tipoDocumento,
+    this.idTipoDocumento,
     required this.numeroDocumento,
     required this.nombreCliente,
     required this.apellidoPaterno,
@@ -22,6 +26,7 @@ class Client {
   Map<String, dynamic> toJson() => {
         "id_cliente": idCliente,
         "id_tipo_documento": idTipoDocumento,
+        "tipo_documento": tipoDocumento,
         "numero_documento": numeroDocumento,
         "nombre_cliente": nombreCliente,
         "apellido_paterno": apellidoPaterno,

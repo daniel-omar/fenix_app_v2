@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fenix_app_v2/config/config.dart';
 import 'package:logger/logger.dart';
 
-void main() async {
+void main() async { 
   var logger = Logger(
     printer: PrettyPrinter(methodCount: 0),
     level: Level.info, //Personaliza el formato de los mensajes

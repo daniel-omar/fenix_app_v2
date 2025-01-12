@@ -13,17 +13,19 @@ class ClientFormNotifier extends StateNotifier<ClientFormState> {
   ClientFormNotifier() : super(ClientFormState());
 
   initForm(Client client) {
-    ClientFormState(
-        idCliente: client.idCliente,
-        idTipoDocumento: client.idTipoDocumento,
-        numeroDocumento: Phone.dirty(client.numeroDocumento),
-        nombre: Title.dirty(client.nombreCliente),
-        apellidos: Title.dirty(client.apellidoPaterno),
-        numeroTelefono: Phone.dirty(
-            client.numeroTelefono == null ? "" : client.numeroTelefono!),
-        numeroTelefono2: const Phone.dirty(''),
-        correo: Email.dirty(client.correo == null ? "" : client.correo!),
-        parentesco: '');
+    //state = state.copyWith(nombre: const Title.dirty("ddd"));
+
+    // state = state.copyWith(
+    //     idCliente: client.idCliente,
+    //     idTipoDocumento: client.idTipoDocumento,
+    //     numeroDocumento: Phone.dirty(client.numeroDocumento),
+    //     nombre: const Title.dirty("ddd"),
+    //     apellidos: Title.dirty(client.apellidoPaterno),
+    //     numeroTelefono: Phone.dirty(
+    //         client.numeroTelefono == null ? "" : client.numeroTelefono!),
+    //     numeroTelefono2: const Phone.dirty(''),
+    //     correo: Email.dirty(client.correo == null ? "" : client.correo!),
+    //     parentesco: '');
   }
 
   Future<bool> onFormSubmit() async {

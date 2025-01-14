@@ -3,29 +3,34 @@ import 'package:fenix_app_v2/features/shared/infrastructure/inputs/inputs.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
-final clientFormProvider =
-    StateNotifierProvider.autoDispose<ClientFormNotifier, ClientFormState>(
-        (ref) {
-  return ClientFormNotifier();
+final customerFormProvider = StateNotifierProvider.autoDispose
+    .family<CustomerFormNotifier, CustomerFormState, Customer?>(
+        (ref, customer) {
+  return CustomerFormNotifier(customer: customer);
 });
 
-class ClientFormNotifier extends StateNotifier<ClientFormState> {
-  ClientFormNotifier() : super(ClientFormState());
+class CustomerFormNotifier extends StateNotifier<CustomerFormState> {
+  CustomerFormNotifier({
+    required Customer? customer,
+  }) : super(CustomerFormState()) {
+    initForm(customer);
+  }
 
-  initForm(Client client) {
+  initForm(Customer? customer) {
     //state = state.copyWith(nombre: const Title.dirty("ddd"));
+    if (customer == null) return;
 
-    // state = state.copyWith(
-    //     idCliente: client.idCliente,
-    //     idTipoDocumento: client.idTipoDocumento,
-    //     numeroDocumento: Phone.dirty(client.numeroDocumento),
-    //     nombre: const Title.dirty("ddd"),
-    //     apellidos: Title.dirty(client.apellidoPaterno),
-    //     numeroTelefono: Phone.dirty(
-    //         client.numeroTelefono == null ? "" : client.numeroTelefono!),
-    //     numeroTelefono2: const Phone.dirty(''),
-    //     correo: Email.dirty(client.correo == null ? "" : client.correo!),
-    //     parentesco: '');
+    state = state.copyWith(
+        idCliente: customer.idCliente,
+        idTipoDocumento: customer.tipoDocumento!.idTipoDocumento,
+        numeroDocumento: Phone.dirty(customer.numeroDocumento),
+        nombre: Title.dirty(customer.nombreCliente),
+        apellidos: Title.dirty(customer.apellidoPaterno),
+        numeroTelefono: Phone.dirty(
+            customer.numeroTelefono == null ? "" : customer.numeroTelefono!),
+        numeroTelefono2: const Phone.dirty(''),
+        correo: Email.dirty(customer.correo == null ? "" : customer.correo!),
+        parentesco: '');
   }
 
   Future<bool> onFormSubmit() async {
@@ -88,7 +93,7 @@ class ClientFormNotifier extends StateNotifier<ClientFormState> {
   }
 }
 
-class ClientFormState {
+class CustomerFormState {
   final bool isFormValid;
   final int? idCliente;
   final int idTipoDocumento;
@@ -100,7 +105,7 @@ class ClientFormState {
   final Email correo;
   final String parentesco;
 
-  ClientFormState(
+  CustomerFormState(
       {this.isFormValid = false,
       this.idCliente,
       this.idTipoDocumento = 0,
@@ -112,7 +117,7 @@ class ClientFormState {
       this.correo = const Email.dirty(''),
       this.parentesco = ''});
 
-  ClientFormState copyWith({
+  CustomerFormState copyWith({
     bool? isFormValid,
     int? idCliente,
     int? idTipoDocumento,
@@ -124,7 +129,7 @@ class ClientFormState {
     Email? correo,
     String? parentesco,
   }) =>
-      ClientFormState(
+      CustomerFormState(
         isFormValid: isFormValid ?? this.isFormValid,
         idCliente: idCliente ?? this.idCliente,
         idTipoDocumento: idTipoDocumento ?? this.idTipoDocumento,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class OrderClient {
+class CustomerOrder {
   int idOrden;
   int idTipoDocumento;
   String numeroDocumento;
@@ -11,7 +11,7 @@ class OrderClient {
   String? correo;
   String? parenteso;
 
-  OrderClient({
+  CustomerOrder({
     required this.idOrden,
     required this.idTipoDocumento,
     required this.numeroDocumento,

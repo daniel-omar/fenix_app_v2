@@ -7,7 +7,7 @@ class CustomerOrderRepositoryImpl extends CustomerOrderRepository {
   CustomerOrderRepositoryImpl(this.datasource);
 
   @override
-  Future<Client> getCustomerByIdOrder(int idOrden) {
+  Future<Customer> getCustomerByIdOrder(int idOrden) {
     return datasource.getCustomerByIdOrder(idOrden);
   }
 }

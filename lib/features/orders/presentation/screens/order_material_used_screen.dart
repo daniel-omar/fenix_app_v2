@@ -31,7 +31,7 @@ class OrderMaterialUsedScreen extends ConsumerWidget {
               : FloatingActionButton.extended(
                   onPressed: () {
                     if (orderState.order == null) return;
-                    context.push('/order_client/${orderState.idOrden}');
+                    context.push('/order_customer/${orderState.idOrden}');
                   },
                   label: const Text(
                     "Siguiente",

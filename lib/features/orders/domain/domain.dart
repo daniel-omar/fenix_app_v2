@@ -7,7 +7,7 @@ export 'entities/order_detail.dart';
 export 'entities/order_material.dart';
 export 'entities/activity.dart';
 export 'entities/activity_category.dart';
-export 'entities/client.dart';
+export 'entities/customer.dart';
 export 'entities/order_status.dart';
 export 'entities/material.dart';
 export 'entities/material_category.dart';

@@ -1,5 +1,5 @@
-import '../entities/client.dart';
+import '../entities/customer.dart';
 
 abstract class CustomerOrderRepository {
-  Future<Client> getCustomerByIdOrder(int idOrden);
+  Future<Customer> getCustomerByIdOrder(int idOrden);
 }

@@ -1,6 +1,6 @@
 import 'package:fenix_app_v2/features/orders/domain/entities/document_type.dart';
 
-class Client {
+class Customer {
   int idCliente;
   int? idTipoDocumento;
   DocumentType? tipoDocumento;
@@ -11,7 +11,7 @@ class Client {
   String? numeroTelefono;
   String? correo;
 
-  Client({
+  Customer({
     required this.idCliente,
     this.tipoDocumento,
     this.idTipoDocumento,

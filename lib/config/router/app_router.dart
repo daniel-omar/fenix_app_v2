@@ -1,5 +1,5 @@
 import 'package:fenix_app_v2/features/home/presentation/screens/home_screen.dart';
-import 'package:fenix_app_v2/features/orders/presentation/screens/order_client_screen.dart';
+import 'package:fenix_app_v2/features/orders/presentation/screens/order_customer_screen.dart';
 import 'package:fenix_app_v2/features/orders/presentation/screens/order_material_screen.dart';
 import 'package:fenix_app_v2/features/orders/presentation/screens/order_material_used_screen.dart';
 import 'package:fenix_app_v2/features/orders/presentation/screens/screens.dart';
@@ -70,8 +70,16 @@ final goRouterProvider = Provider((ref) {
         ),
       ),
       GoRoute(
-        path: '/order_client/:idOrden', // /product/new
-        builder: (context, state) => OrderClientScreen(
+        path: '/order_customer/:idOrden', // /product/new
+        builder: (context, state) => CustomerOrderScreen(
+          idOrder: state.pathParameters['idOrden'] != null
+              ? int.parse(state.pathParameters['idOrden']!)
+              : 0,
+        ),
+      ),
+      GoRoute(
+        path: '/customer_signature/:idOrden', // /product/new
+        builder: (context, state) => CustomerOrderScreen(
           idOrder: state.pathParameters['idOrden'] != null
               ? int.parse(state.pathParameters['idOrden']!)
               : 0,

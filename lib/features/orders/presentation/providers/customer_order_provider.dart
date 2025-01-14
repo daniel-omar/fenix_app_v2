@@ -1,64 +1,67 @@
-import 'package:fenix_app_v2/features/orders/domain/entities/document_type.dart';
-import 'package:fenix_app_v2/features/orders/domain/repositories/document_type_repository.dart';
-import 'package:fenix_app_v2/features/orders/presentation/providers/document_type_repository_provider.dart';
+import 'package:fenix_app_v2/features/orders/domain/domain.dart';
+import 'package:fenix_app_v2/features/orders/domain/entities/order_customer.dart';
+import 'package:fenix_app_v2/features/orders/presentation/providers/customer_order_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-final customerOrderProvider = StateNotifierProvider.autoDispose<
-    DocumentTypesNotifier,
-    DocumentTypesState
-    //int
-    >((ref) {
-  final documentTypeRepository = ref.watch(documentTypeRepositoryProvider);
+final customerOrderProvider = StateNotifierProvider.autoDispose
+    .family<CustomerOrderNotifier, CustomerOrderState, int>((ref, idOrder) {
+  final customerOrderRepository = ref.watch(customerOrderRepositoryProvider);
 
-  return DocumentTypesNotifier(
-    documentTypeRepository: documentTypeRepository,
-    //idMaterialCategory: idMaterialCategory,
+  return CustomerOrderNotifier(
+    customerOrderRepository: customerOrderRepository,
+    idOrder: idOrder,
   );
 });
 
-class DocumentTypesNotifier extends StateNotifier<DocumentTypesState> {
-  final DocumentTypeRepository documentTypeRepository;
+class CustomerOrderNotifier extends StateNotifier<CustomerOrderState> {
+  final CustomerOrderRepository customerOrderRepository;
 
-  DocumentTypesNotifier({
-    required this.documentTypeRepository,
-    //required int? idMaterialCategory,
-  }) : super(DocumentTypesState()) {
-    loadDocumentTypes();
+  CustomerOrderNotifier({
+    required this.customerOrderRepository,
+    required int? idOrder,
+  }) : super(CustomerOrderState()) {
+    getCustomerByIdOrden(idOrder);
   }
 
-  Future<void> loadDocumentTypes() async {
+  Future<void> getCustomerByIdOrden(int? idOrder) async {
     try {
       state = state.copyWith(isLoading: true);
 
-      final documentTypes = await documentTypeRepository.getList();
+      final customer =
+          await customerOrderRepository.getCustomerByIdOrder(idOrder!);
 
-      state = state.copyWith(isLoading: false, documentTypes: documentTypes);
+      state = state.copyWith(isLoading: false, customer: customer);
     } catch (e) {
+      //state = state.copyWith(isLoading: false);
       // 404 product not found
       print(e);
     }
   }
 }
 
-class CustomerState {
+class CustomerOrderState {
   final bool isLoading;
   final bool isSaving;
+  final Customer? customer;
+  final CustomerOrder? customerOrder;
 
-  // DocumentTypesState({
-  //   this.isLoading = true,
-  //   this.isSaving = false,
-  //   this.documentTypes,
-  // });
+  CustomerOrderState(
+      {this.isLoading = true,
+      this.isSaving = false,
+      this.customer,
+      this.customerOrder});
 
-  // DocumentTypesState copyWith({
-  //   bool? isLoading,
-  //   bool? isSaving,
-  //   List<DocumentType>? documentTypes,
-  // }) =>
-  //     DocumentTypesState(
-  //       isLoading: isLoading ?? this.isLoading,
-  //       isSaving: isSaving ?? this.isSaving,
-  //       documentTypes: documentTypes ?? this.documentTypes,
-  //     );
+  CustomerOrderState copyWith({
+    bool? isLoading,
+    bool? isSaving,
+    Customer? customer,
+    CustomerOrder? customerOrder,
+  }) =>
+      CustomerOrderState(
+        isLoading: isLoading ?? this.isLoading,
+        isSaving: isSaving ?? this.isSaving,
+        customer: customer ?? this.customer,
+        customerOrder: customerOrder ?? this.customerOrder,
+      );
 }

@@ -17,7 +17,7 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
   LoginFormNotifier({
     required this.loginUserCallback,
-  }) : super(LoginFormState(isObscurePassword: false));
+  }) : super(LoginFormState(isObscurePassword: true));
 
   onEmailChange(String value) {
     final newEmail = Email.dirty(value);

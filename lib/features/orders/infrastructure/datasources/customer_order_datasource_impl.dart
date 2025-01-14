@@ -12,7 +12,7 @@ class CustomerOrderDatasourceImpl extends CustomerOrderDatasource {
   CustomerOrderDatasourceImpl();
 
   @override
-  Future<Client> getCustomerByIdOrder(int idOrden) async {
+  Future<Customer> getCustomerByIdOrder(int idOrden) async {
     try {
       final response = await dioClient.dio
           .get('/orders/customer_order/getCustomerByIdOrder/$idOrden');
@@ -20,8 +20,9 @@ class CustomerOrderDatasourceImpl extends CustomerOrderDatasource {
       ResponseMain responseMain =
           ResponseMainMapper.responseJsonToEntity(response.data);
 
+      final customerResponse = responseMain.data[0];
       final customer =
-          ClientMapper.clientJsonToEntity(responseMain.data.customer);
+          ClientMapper.clientJsonToEntity(customerResponse["customer"]);
       return customer;
     } on DioException catch (e) {
       if (e.response!.statusCode == 404) throw OrderNotFound();

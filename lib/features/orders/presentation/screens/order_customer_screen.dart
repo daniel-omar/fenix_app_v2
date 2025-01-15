@@ -1,10 +1,10 @@
-import 'dart:io';
-
 import 'package:fenix_app_v2/features/orders/domain/entities/order.dart';
-import 'package:fenix_app_v2/features/orders/domain/entities/client.dart';
+import 'package:fenix_app_v2/features/orders/domain/entities/customer.dart';
 import 'package:fenix_app_v2/features/orders/domain/entities/document_type.dart';
+import 'package:fenix_app_v2/features/orders/domain/entities/order_customer.dart';
+import 'package:fenix_app_v2/features/orders/presentation/providers/customer_order_provider.dart';
 import 'package:fenix_app_v2/features/orders/presentation/providers/document_types_provider.dart';
-import 'package:fenix_app_v2/features/orders/presentation/providers/forms/client_form_provider.dart';
+import 'package:fenix_app_v2/features/orders/presentation/providers/forms/customer_form_provider.dart';
 import 'package:fenix_app_v2/features/orders/presentation/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,16 +13,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fenix_app_v2/features/shared/shared.dart';
 import 'package:go_router/go_router.dart';
 
-class OrderClientScreen extends ConsumerStatefulWidget {
+class CustomerOrderScreen extends ConsumerStatefulWidget {
   final int idOrder;
-  const OrderClientScreen({super.key, required this.idOrder});
+  const CustomerOrderScreen({super.key, required this.idOrder});
 
   @override
   // ignore: library_private_types_in_public_api
-  _OrderClientScreen createState() => _OrderClientScreen();
+  _CustomerOrderScreen createState() => _CustomerOrderScreen();
 }
 
-class _OrderClientScreen extends ConsumerState<OrderClientScreen> {
+class _CustomerOrderScreen extends ConsumerState<CustomerOrderScreen> {
   // void showSnackbar(BuildContext context) {
   //   ScaffoldMessenger.of(context).clearSnackBars();
   //   ScaffoldMessenger.of(context)
@@ -42,9 +42,36 @@ class _OrderClientScreen extends ConsumerState<OrderClientScreen> {
     super.dispose();
   }
 
+  void showSnackbar(BuildContext context) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Todo fino')));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final orderState = ref.watch(orderProvider);
+    final customerState = ref.watch(customerOrderProvider(widget.idOrder));
+
+    nextPage() {
+      final customerForm =
+          ref.watch(customerFormProvider(customerState.customer!));
+
+      final customerOrder = CustomerOrder(
+        idOrden: widget.idOrder,
+        idTipoDocumento: customerForm.idTipoDocumento,
+        numeroDocumento: customerForm.numeroDocumento.value,
+        nombre: customerForm.nombre.value,
+        apellidos: customerForm.apellidos.value,
+        numeroTelefono: customerForm.numeroTelefono.value,
+        numeroTelefono2: customerForm.numeroTelefono2.value,
+        correo: customerForm.correo.value,
+        parenteso: customerForm.parentesco.value,
+      );
+
+      ref.watch(orderProvider.notifier).updateCustomerOrder(customerOrder);
+
+      context.push('/customer_signature/${widget.idOrder}');
+    }
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -53,83 +80,73 @@ class _OrderClientScreen extends ConsumerState<OrderClientScreen> {
           title: const Text('Datos cliente'),
           actions: const [],
         ),
-        body: orderState.isLoading
+        body: customerState.isLoading
             ? const FullScreenLoader()
-            : _OrderView(
-                order: orderState.order!,
+            : _CustomerOrderView(
+                customer: customerState.customer!,
               ),
-        floatingActionButton: orderState.isLoading
+        floatingActionButton: customerState.isLoading
             ? null
-            : (orderState.order!.estadoOrden.idEstadoOrden != 2
-                ? null
-                : FloatingActionButton.extended(
-                    onPressed: () {
-                      if (orderState.order == null) return;
-                      context.push('/order_materials/${orderState.idOrden}');
-                    },
-                    label: const Text(
-                      "Siguiente",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  )),
+            : FloatingActionButton.extended(
+                onPressed: () {
+                  ref
+                      .read(customerFormProvider(customerState.customer!)
+                          .notifier)
+                      .onFormSubmit()
+                      .then((value) {
+                    if (!value) return;
+                    // ignore: use_build_context_synchronously
+                    //showSnackbar(context);
+                    nextPage();
+                  });
+                },
+                label: const Text(
+                  "Siguiente",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
       ),
     );
   }
 }
 
-class _OrderView extends ConsumerWidget {
-  final Order order;
+class _CustomerOrderView extends ConsumerWidget {
+  final Customer customer;
 
-  const _OrderView({required this.order});
+  const _CustomerOrderView({required this.customer});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final productDetail = ref.watch(orderProvider);
     final textStyles = Theme.of(context).textTheme;
-    final client = Client(
-        idCliente: 0,
-        idTipoDocumento: 1,
-        numeroDocumento: '',
-        nombreCliente: '',
-        apellidoPaterno: '',
-        apellidoMaterno: '',
-        numeroTelefono: '',
-        correo: '');
-    final clientForm = ref.read(clientFormProvider.notifier).initForm(client);
 
     return ListView(
       children: [
         Center(
           child: Text(
-            productDetail.order!.numeroOrden,
+            "",
             style: textStyles.titleSmall,
             textAlign: TextAlign.center,
           ),
         ),
         const SizedBox(height: 10),
-        _OrderInformation(order: order),
+        _CustomerOrderInformation(
+          customer: customer,
+        )
       ],
     );
   }
 }
 
-class _OrderInformation extends ConsumerWidget {
-  final Order order;
-  const _OrderInformation({required this.order});
+class _CustomerOrderInformation extends ConsumerWidget {
+  final Customer? customer;
+  const _CustomerOrderInformation({required this.customer});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final client = Client(
-        idCliente: 0,
-        idTipoDocumento: 1,
-        numeroDocumento: '',
-        nombreCliente: '',
-        apellidoPaterno: '',
-        apellidoMaterno: '',
-        numeroTelefono: '',
-        correo: '');
+    final customerForm = ref.watch(customerFormProvider(customer));
+
     final documentTypes = ref.watch(documentTypesProvider);
-    final clientForm = ref.watch(clientFormProvider);
+
     final double width = MediaQuery.of(context).size.width;
 
     return Padding(
@@ -142,24 +159,29 @@ class _OrderInformation extends ConsumerWidget {
           CustomTextFormField(
             isTopField: true,
             label: 'Nombre',
-            initialValue: clientForm.nombre.value,
-            onChanged: ref.read(clientFormProvider.notifier).onNombreChanged,
-            errorMessage: clientForm.nombre.errorMessage,
+            initialValue: customerForm.nombre.value,
+            onChanged: ref
+                .read(customerFormProvider(customer).notifier)
+                .onNombreChanged,
+            errorMessage: customerForm.nombre.errorMessage,
           ),
           const SizedBox(height: 10),
           CustomTextFormField(
             isTopField: true,
             label: 'Apellidos',
-            initialValue: clientForm.apellidos.value,
-            onChanged: ref.read(clientFormProvider.notifier).onApellidosChanged,
-            errorMessage: clientForm.apellidos.errorMessage,
+            initialValue: customerForm.apellidos.value,
+            onChanged: ref
+                .read(customerFormProvider(customer).notifier)
+                .onApellidosChanged,
+            errorMessage: customerForm.apellidos.errorMessage,
           ),
           const SizedBox(height: 10),
           if (!documentTypes.isLoading)
             DropdownTipoDocumento(
                 documentTypes: documentTypes.documentTypes!,
+                idTipoDocumento: customerForm.idTipoDocumento,
                 onSelected: ref
-                    .read(clientFormProvider.notifier)
+                    .read(customerFormProvider(customer).notifier)
                     .onTipoDocumentoChanged,
                 width: width),
           const SizedBox(height: 10),
@@ -168,10 +190,11 @@ class _OrderInformation extends ConsumerWidget {
             label: 'Nro Documento',
             keyboardType: TextInputType.number,
             listTextInputFormatter: [FilteringTextInputFormatter.digitsOnly],
-            initialValue: clientForm.numeroDocumento.value,
-            onChanged:
-                ref.read(clientFormProvider.notifier).onNumeroDocumentoChanged,
-            errorMessage: clientForm.numeroDocumento.errorMessage,
+            initialValue: customerForm.numeroDocumento.value,
+            onChanged: ref
+                .read(customerFormProvider(customer).notifier)
+                .onNumeroDocumentoChanged,
+            errorMessage: customerForm.numeroDocumento.errorMessage,
           ),
           const SizedBox(height: 10),
           CustomTextFormField(
@@ -179,9 +202,11 @@ class _OrderInformation extends ConsumerWidget {
             label: 'Nro contacto',
             keyboardType: TextInputType.number,
             listTextInputFormatter: [FilteringTextInputFormatter.digitsOnly],
-            initialValue: clientForm.numeroTelefono.value,
-            onChanged: ref.read(clientFormProvider.notifier).onTelefonoChanged,
-            errorMessage: clientForm.numeroTelefono.errorMessage,
+            initialValue: customerForm.numeroTelefono.value,
+            onChanged: ref
+                .read(customerFormProvider(customer).notifier)
+                .onTelefonoChanged,
+            errorMessage: customerForm.numeroTelefono.errorMessage,
           ),
           const SizedBox(height: 10),
           CustomTextFormField(
@@ -189,24 +214,30 @@ class _OrderInformation extends ConsumerWidget {
             label: 'Nro contacto emergencia',
             keyboardType: TextInputType.number,
             listTextInputFormatter: [FilteringTextInputFormatter.digitsOnly],
-            initialValue: clientForm.numeroTelefono2.value,
-            onChanged: ref.read(clientFormProvider.notifier).onTelefono2Changed,
-            errorMessage: clientForm.numeroTelefono2.errorMessage,
+            initialValue: customerForm.numeroTelefono2.value,
+            onChanged: ref
+                .read(customerFormProvider(customer).notifier)
+                .onTelefono2Changed,
+            //errorMessage: customerForm.numeroTelefono2.errorMessage,
           ),
           const SizedBox(height: 10),
           CustomTextFormField(
             isTopField: true,
             label: 'Correo',
-            initialValue: clientForm.correo.value,
-            onChanged: ref.read(clientFormProvider.notifier).onCorreoChanged,
-            errorMessage: clientForm.correo.errorMessage,
+            initialValue: customerForm.correo.value,
+            onChanged: ref
+                .read(customerFormProvider(customer).notifier)
+                .onCorreoChanged,
+            errorMessage: customerForm.correo.errorMessage,
           ),
           const SizedBox(height: 10),
           if (!documentTypes.isLoading)
             DropdownParentesco(
-                onSelected:
-                    ref.read(clientFormProvider.notifier).onParentescoChanged,
-                width: width),
+                onSelected: ref
+                    .read(customerFormProvider(customer).notifier)
+                    .onParentescoChanged,
+                width: width,
+                errorMessage: customerForm.parentesco.errorMessage),
         ],
       ),
     );
@@ -218,17 +249,22 @@ class DropdownTipoDocumento extends ConsumerWidget {
   void Function(int idTipoDocumento) onSelected;
   List<DocumentType> documentTypes;
   double? width;
+  int? idTipoDocumento;
+  String? errorMessage;
+
   DropdownTipoDocumento(
       {super.key,
       required this.documentTypes,
       required this.onSelected,
-      this.width});
+      required this.idTipoDocumento,
+      this.width,
+      this.errorMessage});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DropdownMenu<String>(
       label: const Text("Tipo Documento"),
-      initialSelection: 0.toString(),
+      initialSelection: idTipoDocumento.toString(),
       width: width,
       onSelected: (String? value) {
         //print(value);
@@ -240,6 +276,7 @@ class DropdownTipoDocumento extends ConsumerWidget {
             value: documentType.idTipoDocumento.toString(),
             label: documentType.nombreTipoDocumento);
       }).toList(),
+      errorText: errorMessage,
     );
   }
 }
@@ -256,7 +293,10 @@ class DropdownParentesco extends ConsumerWidget {
   ];
   void Function(String parentesco) onSelected;
   double? width;
-  DropdownParentesco({super.key, required this.onSelected, this.width});
+  String? errorMessage;
+
+  DropdownParentesco(
+      {super.key, required this.onSelected, this.width, this.errorMessage});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -272,6 +312,7 @@ class DropdownParentesco extends ConsumerWidget {
           parentescos.map<DropdownMenuEntry<String>>((String valor) {
         return DropdownMenuEntry<String>(value: valor, label: valor);
       }).toList(),
+      errorText: errorMessage,
     );
   }
 }

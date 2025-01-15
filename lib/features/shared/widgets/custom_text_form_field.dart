@@ -18,6 +18,8 @@ class CustomTextFormField extends StatefulWidget {
   final bool? isBottomField;
   final bool? readOnly;
   final TextEditingController? textEditingController;
+  final bool hasSufix;
+  final Function()? onSufix;
 
   CustomTextFormField(
       {super.key,
@@ -36,7 +38,9 @@ class CustomTextFormField extends StatefulWidget {
       this.isBottomField,
       this.isTopField,
       this.readOnly = false,
-      this.textEditingController});
+      this.textEditingController,
+      this.onSufix,
+      this.hasSufix = false});
 
   @override
   State<CustomTextFormField> createState() => _CustomTextFormFieldState();
@@ -105,13 +109,9 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           hintText: widget.hint,
           errorText: widget.errorMessage,
           focusColor: colors.primary,
-          suffix: widget.suffixIcon != null
+          suffix: widget.hasSufix
               ? GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      widget.obscureText = !widget.obscureText;
-                    });
-                  },
+                  onTap: widget.onSufix,
                   child: Icon(
                     widget.suffixIcon,
                     color: colors.primary,

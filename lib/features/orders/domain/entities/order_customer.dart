@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class OrderClient {
+class CustomerOrder {
   int idOrden;
   int idTipoDocumento;
   String numeroDocumento;
@@ -9,19 +9,18 @@ class OrderClient {
   String numeroTelefono;
   String? numeroTelefono2;
   String? correo;
-  String parenteso;
+  String? parenteso;
 
-  OrderClient({
-    required this.idOrden,
-    required this.idTipoDocumento,
-    required this.numeroDocumento,
-    required this.nombre,
-    required this.apellidos,
-    required this.numeroTelefono,
-    this.numeroTelefono2,
-    this.correo,
-    required this.parenteso,
-  });
+  CustomerOrder(
+      {required this.idOrden,
+      required this.idTipoDocumento,
+      required this.numeroDocumento,
+      required this.nombre,
+      required this.apellidos,
+      required this.numeroTelefono,
+      this.numeroTelefono2,
+      this.correo,
+      this.parenteso});
 
   Map<String, dynamic> toJson() => {
         "id_orden": idOrden,

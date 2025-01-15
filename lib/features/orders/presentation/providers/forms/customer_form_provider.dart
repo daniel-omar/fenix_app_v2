@@ -3,27 +3,32 @@ import 'package:fenix_app_v2/features/shared/infrastructure/inputs/inputs.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
-final clientFormProvider =
-    StateNotifierProvider.autoDispose<ClientFormNotifier, ClientFormState>(
-        (ref) {
-  return ClientFormNotifier();
+final customerFormProvider = StateNotifierProvider.autoDispose
+    .family<CustomerFormNotifier, CustomerFormState, Customer?>(
+        (ref, customer) {
+  return CustomerFormNotifier(customer: customer);
 });
 
-class ClientFormNotifier extends StateNotifier<ClientFormState> {
-  ClientFormNotifier() : super(ClientFormState());
+class CustomerFormNotifier extends StateNotifier<CustomerFormState> {
+  CustomerFormNotifier({
+    required Customer? customer,
+  }) : super(CustomerFormState()) {
+    initForm(customer);
+  }
+  initForm(Customer? customer) {
+    //state = state.copyWith(nombre: const Title.dirty("ddd"));
+    if (customer == null) return;
 
-  initForm(Client client) {
-    ClientFormState(
-        idCliente: client.idCliente,
-        idTipoDocumento: client.idTipoDocumento,
-        numeroDocumento: Phone.dirty(client.numeroDocumento),
-        nombre: Title.dirty(client.nombreCliente),
-        apellidos: Title.dirty(client.apellidoPaterno),
-        numeroTelefono: Phone.dirty(
-            client.numeroTelefono == null ? "" : client.numeroTelefono!),
+    state = state.copyWith(
+        idCliente: customer.idCliente,
+        idTipoDocumento: customer.tipoDocumento!.idTipoDocumento,
+        numeroDocumento: Phone.dirty(customer.numeroDocumento),
+        nombre: Title.dirty(customer.nombreCliente),
+        apellidos: Title.dirty(customer.apellidoPaterno),
+        numeroTelefono: Phone.dirty(customer.numeroTelefono ?? ""),
         numeroTelefono2: const Phone.dirty(''),
-        correo: Email.dirty(client.correo == null ? "" : client.correo!),
-        parentesco: '');
+        correo: Email.dirty(customer.correo ?? ""),
+        parentesco: const Title.dirty(""));
   }
 
   Future<bool> onFormSubmit() async {
@@ -38,9 +43,10 @@ class ClientFormNotifier extends StateNotifier<ClientFormState> {
       isFormValid: Formz.validate([
         Phone.dirty(state.numeroDocumento.value),
         Title.dirty(state.nombre.value),
-        //Title.dirty(state.apellidos.value),
+        Title.dirty(state.apellidos.value),
         Phone.dirty(state.numeroTelefono.value),
         Email.dirty(state.correo.value),
+        Title.dirty(state.parentesco.value),
       ]),
     );
   }
@@ -81,12 +87,12 @@ class ClientFormNotifier extends StateNotifier<ClientFormState> {
   }
 
   void onParentescoChanged(String parenteso) {
-    state = state.copyWith(parentesco: parenteso);
+    state = state.copyWith(parentesco: Title.dirty(parenteso));
     _touchedEverything();
   }
 }
 
-class ClientFormState {
+class CustomerFormState {
   final bool isFormValid;
   final int? idCliente;
   final int idTipoDocumento;
@@ -96,21 +102,22 @@ class ClientFormState {
   final Phone numeroTelefono;
   final Phone numeroTelefono2;
   final Email correo;
-  final String parentesco;
+  final Title parentesco;
 
-  ClientFormState(
-      {this.isFormValid = false,
-      this.idCliente,
-      this.idTipoDocumento = 0,
-      this.numeroDocumento = const Phone.dirty(''),
-      this.nombre = const Title.dirty(''),
-      this.apellidos = const Title.dirty(''),
-      this.numeroTelefono = const Phone.dirty(''),
-      this.numeroTelefono2 = const Phone.dirty(''),
-      this.correo = const Email.dirty(''),
-      this.parentesco = ''});
+  CustomerFormState({
+    this.isFormValid = false,
+    this.idCliente,
+    this.idTipoDocumento = 0,
+    this.numeroDocumento = const Phone.dirty(''),
+    this.nombre = const Title.dirty(''),
+    this.apellidos = const Title.dirty(''),
+    this.numeroTelefono = const Phone.dirty(''),
+    this.numeroTelefono2 = const Phone.dirty(''),
+    this.correo = const Email.dirty(''),
+    this.parentesco = const Title.dirty(''),
+  });
 
-  ClientFormState copyWith({
+  CustomerFormState copyWith({
     bool? isFormValid,
     int? idCliente,
     int? idTipoDocumento,
@@ -120,9 +127,9 @@ class ClientFormState {
     Phone? numeroTelefono,
     Phone? numeroTelefono2,
     Email? correo,
-    String? parentesco,
+    Title? parentesco,
   }) =>
-      ClientFormState(
+      CustomerFormState(
         isFormValid: isFormValid ?? this.isFormValid,
         idCliente: idCliente ?? this.idCliente,
         idTipoDocumento: idTipoDocumento ?? this.idTipoDocumento,

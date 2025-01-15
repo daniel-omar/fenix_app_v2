@@ -1,4 +1,5 @@
 import 'package:fenix_app_v2/features/orders/domain/domain.dart';
+import 'package:fenix_app_v2/features/orders/domain/entities/order_customer.dart';
 import 'package:fenix_app_v2/features/orders/domain/entities/order_material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -51,6 +52,10 @@ class OrderNotifier extends StateNotifier<OrderState> {
 
     state = state.copyWith(isLoading: false, orderMaterials: orderMaterials);
   }
+
+  updateCustomerOrder(CustomerOrder customerOrder) {
+    state = state.copyWith(customerOrder: customerOrder);
+  }
 }
 
 class OrderState {
@@ -59,27 +64,28 @@ class OrderState {
   final bool isLoading;
   final bool isSaving;
   final List<OrderMaterial>? orderMaterials;
+  final CustomerOrder? customerOrder;
 
-  OrderState({
-    this.idOrden,
-    this.order,
-    this.isLoading = true,
-    this.isSaving = false,
-    this.orderMaterials = const [],
-  });
+  OrderState(
+      {this.idOrden,
+      this.order,
+      this.isLoading = true,
+      this.isSaving = false,
+      this.orderMaterials = const [],
+      this.customerOrder});
 
-  OrderState copyWith({
-    int? idOrden,
-    Order? order,
-    bool? isLoading,
-    bool? isSaving,
-    List<OrderMaterial>? orderMaterials,
-  }) =>
+  OrderState copyWith(
+          {int? idOrden,
+          Order? order,
+          bool? isLoading,
+          bool? isSaving,
+          List<OrderMaterial>? orderMaterials,
+          CustomerOrder? customerOrder}) =>
       OrderState(
-        idOrden: idOrden ?? this.idOrden,
-        order: order ?? this.order,
-        isLoading: isLoading ?? this.isLoading,
-        isSaving: isSaving ?? this.isSaving,
-        orderMaterials: orderMaterials ?? this.orderMaterials,
-      );
+          idOrden: idOrden ?? this.idOrden,
+          order: order ?? this.order,
+          isLoading: isLoading ?? this.isLoading,
+          isSaving: isSaving ?? this.isSaving,
+          orderMaterials: orderMaterials ?? this.orderMaterials,
+          customerOrder: customerOrder ?? this.customerOrder);
 }

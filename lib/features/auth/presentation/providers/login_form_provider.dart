@@ -17,7 +17,7 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
   LoginFormNotifier({
     required this.loginUserCallback,
-  }) : super(LoginFormState());
+  }) : super(LoginFormState(isObscurePassword: true));
 
   onEmailChange(String value) {
     final newEmail = Email.dirty(value);
@@ -55,6 +55,12 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
         password: password,
         isValid: Formz.validate([email, password]));
   }
+
+  onSufix() {
+    state = state.copyWith(
+      isObscurePassword: !state.isObscurePassword,
+    );
+  }
 }
 
 //! 1 - State del provider
@@ -64,13 +70,16 @@ class LoginFormState {
   final bool isValid;
   final Email email;
   final Password password;
+  final bool isObscurePassword;
 
-  LoginFormState(
-      {this.isPosting = false,
-      this.isFormPosted = false,
-      this.isValid = false,
-      this.email = const Email.pure(),
-      this.password = const Password.pure()});
+  LoginFormState({
+    this.isPosting = false,
+    this.isFormPosted = false,
+    this.isValid = false,
+    this.email = const Email.pure(),
+    this.password = const Password.pure(),
+    this.isObscurePassword = false,
+  });
 
   LoginFormState copyWith({
     bool? isPosting,
@@ -78,6 +87,7 @@ class LoginFormState {
     bool? isValid,
     Email? email,
     Password? password,
+    bool? isObscurePassword,
   }) =>
       LoginFormState(
         isPosting: isPosting ?? this.isPosting,
@@ -85,6 +95,7 @@ class LoginFormState {
         isValid: isValid ?? this.isValid,
         email: email ?? this.email,
         password: password ?? this.password,
+        isObscurePassword: isObscurePassword ?? this.isObscurePassword,
       );
 
   @override

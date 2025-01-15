@@ -5,7 +5,7 @@ export 'datasources/material_datasource_impl.dart';
 export 'errors/order_errors.dart';
 export 'mappers/order_mapper.dart';
 export 'mappers/order_status_mapper.dart';
-export 'mappers/client_mapper.dart';
+export 'mappers/customer_mapper.dart';
 export 'mappers/activity_mapper.dart';
 export 'mappers/activity_category_mapper.dart';
 export 'mappers/material_category_mapper.dart';

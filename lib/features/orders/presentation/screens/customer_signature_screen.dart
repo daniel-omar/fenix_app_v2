@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:fenix_app_v2/features/orders/presentation/providers/providers.dart';
 import 'package:fenix_app_v2/features/shared/shared.dart';
+import 'package:fenix_app_v2/features/shared/widgets/custom_text_area.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -39,28 +40,49 @@ class _CustomerSignatureScreen extends ConsumerState<CustomerSignatureScreen> {
     });
   }
 
+  void _openIconButtonPressed() {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (ctx) => InfoScreen(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Firma cliente'),
-          actions: const [],
+          actions: [
+            IconButton(
+              onPressed: () => {_openIconButtonPressed()},
+              icon: const Icon(Icons.message_outlined),
+            ),
+          ],
         ),
         body: _SignatureView(
           onChanged: _changeHabilitado,
           esHabilitado: esHabilitado,
         ),
         floatingActionButton: FloatingActionButton.extended(
-          enableFeedback: true,
-          onPressed: () {
-            context.push('/order_materials/${1}');
-          },
-          label: const Text(
+          disabledElevation: 10,
+          onPressed: !esHabilitado
+              ? null
+              : () {
+                  context.push('/order_materials/${1}');
+                },
+          label: Text(
             "Siguiente",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: !esHabilitado ? Colors.white : colorScheme.secondary),
           ),
+          backgroundColor:
+              !esHabilitado ? Colors.grey : colorScheme.primaryFixed,
         ),
       ),
     );
@@ -106,7 +128,7 @@ class _SignatureView extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
         AbsorbPointer(
-          absorbing: false,
+          absorbing: !esHabilitado,
           child: Signature(
             controller: controller,
             width: 350,
@@ -119,16 +141,32 @@ class _SignatureView extends ConsumerWidget {
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(5),
-              child: CustomFilledButton(
-                text: "Limpiar",
-                buttonColor: Colors.red,
-                onPressed: () async => {controller.clear()},
+            SizedBox(
+              width: 125,
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: CustomFilledButton(
+                  text: "Limpiar",
+                  buttonColor: Colors.red,
+                  onPressed: () async => {controller.clear()},
+                  radius: const Radius.circular(10),
+                ),
               ),
             ),
+            SizedBox(
+              width: 125,
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: CustomFilledButton(
+                  text: "Ok",
+                  buttonColor: Colors.blueAccent,
+                  onPressed: () async => {controller.clear()},
+                ),
+              ),
+            ),
+
             // Padding(
             //   padding: const EdgeInsets.all(5),
             //   child: CustomFilledButton(
@@ -181,6 +219,54 @@ class _SignatureView extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class InfoScreen extends StatelessWidget {
+  const InfoScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Observación',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 10),
+            CustomTextArea(
+              isTopField: true,
+              label: '',
+              minLine: 5,
+              maxLine: null,
+              onChanged: (value)=>{},
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Exit'),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

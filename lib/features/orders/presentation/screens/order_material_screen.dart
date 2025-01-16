@@ -78,7 +78,7 @@ class _OrderMaterialScreen extends ConsumerState<OrderMaterialScreen>
           .watch(orderProvider.notifier)
           .addOrderMaterials(orderMaterialsSerial, orderMaterialsNotSerial);
 
-      context.push('/order_materials_used/${orderState.idOrden}');
+      context.push('/order_customer/${orderState.idOrden}');
     }
 
     return GestureDetector(

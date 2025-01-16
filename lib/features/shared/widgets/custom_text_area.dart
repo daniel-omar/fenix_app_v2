@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class CustomTextFormField extends StatefulWidget {
+class CustomTextArea extends StatefulWidget {
   final String? label;
   final String? hint;
   final String? errorMessage;
@@ -21,8 +21,10 @@ class CustomTextFormField extends StatefulWidget {
   final bool hasSufix;
   final Function()? onSufix;
   final TextStyle? style;
+  final int? minLine;
+  final int? maxLine;
 
-  CustomTextFormField(
+  CustomTextArea(
       {super.key,
       this.label,
       this.hint,
@@ -42,13 +44,15 @@ class CustomTextFormField extends StatefulWidget {
       this.textEditingController,
       this.onSufix,
       this.hasSufix = false,
-      this.style});
+      this.style,
+      this.minLine,
+      this.maxLine});
 
   @override
-  State<CustomTextFormField> createState() => _CustomTextFormFieldState();
+  State<CustomTextArea> createState() => _CustomTextAreaState();
 }
 
-class _CustomTextFormFieldState extends State<CustomTextFormField> {
+class _CustomTextAreaState extends State<CustomTextArea> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -96,6 +100,8 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         onFieldSubmitted: widget.onFieldSubmitted,
         obscureText: widget.obscureText,
         keyboardType: widget.keyboardType,
+        minLines: widget.minLine,
+        maxLines: widget.maxLine,
         style: widget.style ??
             const TextStyle(fontSize: 16, color: Colors.black54),
         decoration: InputDecoration(

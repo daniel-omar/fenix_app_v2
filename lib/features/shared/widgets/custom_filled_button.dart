@@ -5,27 +5,32 @@ class CustomFilledButton extends StatelessWidget {
   final String text;
   final Color? buttonColor;
   final TextStyle? textStyle;
+  final Radius? radius;
 
   const CustomFilledButton(
       {super.key,
       this.onPressed,
       required this.text,
       this.buttonColor,
-      this.textStyle});
+      this.textStyle,
+      this.radius});
 
   @override
   Widget build(BuildContext context) {
-    const radius = Radius.circular(10);
+    const radiusConstante = Radius.circular(10);
 
     return FilledButton(
         style: FilledButton.styleFrom(
-            backgroundColor: buttonColor,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-              bottomLeft: radius,
-              bottomRight: radius,
-              topLeft: radius,
-            ))),
+          backgroundColor: buttonColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: radius ?? radiusConstante,
+              bottomRight: radius ?? radiusConstante,
+              topLeft: radius ?? radiusConstante,
+              topRight: radius ?? radiusConstante,
+            ),
+          ),
+        ),
         onPressed: onPressed,
         child: Text(
           text,

@@ -108,7 +108,7 @@ class _OrderView extends ConsumerWidget {
         Center(
           child: Text(
             productDetail.order!.numeroOrden,
-            style: textStyles.titleSmall,
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
             textAlign: TextAlign.center,
           ),
         ),
@@ -130,9 +130,12 @@ class _OrderInformation extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Generales'),
+          const Text(
+            'Generales',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
           const SizedBox(height: 10),
-          CustomProductField(
+          CustomTextFormField(
             readOnly: true,
             isTopField: true,
             label: 'Cliente',
@@ -140,18 +143,41 @@ class _OrderInformation extends ConsumerWidget {
                 "${order.cliente.nombreCliente} ${order.cliente.apellidoPaterno} ${order.cliente.apellidoMaterno}",
           ),
           const SizedBox(height: 10),
-          CustomProductField(
+          CustomTextFormField(
+            readOnly: true,
+            isTopField: true,
+            label: 'Dirección',
+            initialValue: order.direccion,
+          ),
+          const SizedBox(height: 10),
+          CustomTextFormField(
+            readOnly: true,
+            isTopField: true,
+            label: 'Telefono',
+            initialValue: order.cliente.numeroTelefono,
+          ),
+          const SizedBox(height: 10),
+          CustomTextFormField(
             readOnly: true,
             isTopField: true,
             label: 'Actividad',
             initialValue: order.actividad.nombreActividad,
           ),
           const SizedBox(height: 10),
-          CustomProductField(
+          CustomTextFormField(
+            readOnly: true,
+            isTopField: true,
+            keyboardType: TextInputType.datetime,
+            label: 'Fecha programacion',
+            initialValue: order.fechaProgramacion,
+          ),
+          const SizedBox(height: 10),
+          CustomTextFormField(
             readOnly: true,
             isTopField: true,
             label: 'Estado',
             initialValue: order.estadoOrden.nombreEstado,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           )
         ],
       ),

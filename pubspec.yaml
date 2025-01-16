@@ -21,6 +21,7 @@ dependencies:
   logger: ^2.5.0
   mobile_scanner: ^6.0.2
   shared_preferences: ^2.3.3
+  signature: ^5.5.0
   simple_barcode_scanner: ^0.2.5
 
 dev_dependencies:

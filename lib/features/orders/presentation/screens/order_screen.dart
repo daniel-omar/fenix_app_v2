@@ -47,25 +47,25 @@ class _OrderScreen extends ConsumerState<OrderScreen> {
         appBar: AppBar(
           title: const Text('Detalle Orden'),
           actions: [
-            IconButton(
-              onPressed: () async {
-                final photoPath =
-                    await CameraGalleryServiceImpl().selectPhoto();
-                if (photoPath == null) return;
+            // IconButton(
+            //   onPressed: () async {
+            //     final photoPath =
+            //         await CameraGalleryServiceImpl().selectPhoto();
+            //     if (photoPath == null) return;
 
-                //codigo;
-              },
-              icon: const Icon(Icons.photo_library_outlined),
-            ),
-            IconButton(
-              onPressed: () async {
-                final photoPath = await CameraGalleryServiceImpl().takePhoto();
-                if (photoPath == null) return;
+            //     //codigo;
+            //   },
+            //   icon: const Icon(Icons.photo_library_outlined),
+            // ),
+            // IconButton(
+            //   onPressed: () async {
+            //     final photoPath = await CameraGalleryServiceImpl().takePhoto();
+            //     if (photoPath == null) return;
 
-                //codigo
-              },
-              icon: const Icon(Icons.camera_alt_outlined),
-            )
+            //     //codigo
+            //   },
+            //   icon: const Icon(Icons.camera_alt_outlined),
+            // )
           ],
         ),
         body: orderState.isLoading

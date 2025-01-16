@@ -102,7 +102,8 @@ class _OrderMaterialScreen extends ConsumerState<OrderMaterialScreen>
           ),
         ),
         body: orderState.isLoading
-            ? const FullScreenLoader()
+            ? const SizedBox(
+                width: double.infinity, height: 60, child: FullScreenLoader())
             : TabBarView(
                 controller: _tabController,
                 children: <Widget>[

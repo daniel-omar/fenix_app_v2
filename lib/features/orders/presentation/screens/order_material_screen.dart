@@ -11,9 +11,9 @@ import 'package:fenix_app_v2/features/shared/shared.dart';
 import 'package:go_router/go_router.dart';
 
 class OrderMaterialScreen extends ConsumerStatefulWidget {
-  final int idOrden;
+  final int idOrder;
 
-  const OrderMaterialScreen({super.key, required this.idOrden});
+  const OrderMaterialScreen({super.key, required this.idOrder});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -44,7 +44,7 @@ class _OrderMaterialScreen extends ConsumerState<OrderMaterialScreen>
 
   @override
   Widget build(BuildContext context) {
-    final orderState = ref.watch(orderProvider);
+    final orderState = ref.watch(orderProvider(widget.idOrder));
     final orderMaterialsSerialState = ref.watch(orderMaterialsSerialProvider);
     final orderMaterialsNotSerialState =
         ref.watch(orderMaterialsNotSerialProvider);
@@ -75,7 +75,7 @@ class _OrderMaterialScreen extends ConsumerState<OrderMaterialScreen>
       }
 
       ref
-          .watch(orderProvider.notifier)
+          .watch(orderProvider(widget.idOrder).notifier)
           .addOrderMaterials(orderMaterialsSerial, orderMaterialsNotSerial);
 
       context.push('/order_customer/${orderState.idOrden}');

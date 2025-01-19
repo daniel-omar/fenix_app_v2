@@ -66,7 +66,7 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/order_materials/:idOrden', // /product/new
         builder: (context, state) => OrderMaterialScreen(
-          idOrden: state.pathParameters['idOrden'] != null
+          idOrder: state.pathParameters['idOrden'] != null
               ? int.parse(state.pathParameters['idOrden']!)
               : 0,
         ),

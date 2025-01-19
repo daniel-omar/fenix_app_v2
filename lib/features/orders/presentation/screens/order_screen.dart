@@ -34,11 +34,11 @@ class _OrderScreen extends ConsumerState<OrderScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
-      ref.watch(orderProvider);
-      setState(() {});
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
+    //   ref.watch(orderProvider);
+    //   setState(() {});
+    // });
   }
 
   @override
@@ -49,7 +49,7 @@ class _OrderScreen extends ConsumerState<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     // ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
-    final orderState = ref.watch(orderProvider);
+    final orderState = ref.watch(orderProvider(widget.idOrder));
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -95,8 +95,6 @@ class _OrderView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final orderState = ref.watch(orderProvider);
-
     final textStyles = Theme.of(context).textTheme;
 
     return ListView(
@@ -109,7 +107,7 @@ class _OrderView extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _OrderInformation(order: orderState.order!),
+        _OrderInformation(order: order),
       ],
     );
   }

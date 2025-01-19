@@ -8,17 +8,21 @@ import 'package:image_picker/image_picker.dart';
 
 import 'order_repository_provider.dart';
 
-final orderProvider = StateNotifierProvider<OrderNotifier, OrderState>((ref) {
+final orderProvider =
+    StateNotifierProvider.family<OrderNotifier, OrderState, int?>(
+        (ref, idOrder) {
   final orderRepository = ref.watch(orderRepositoryProvider);
 
-  return OrderNotifier(orderRepository: orderRepository);
+  return OrderNotifier(orderRepository: orderRepository, idOrder: idOrder ?? 0);
 });
 
 class OrderNotifier extends StateNotifier<OrderState> {
   final OrderRepository orderRepository;
+  final int idOrder;
 
-  OrderNotifier({required this.orderRepository}) : super(OrderState()) {
-    //loadOrder();
+  OrderNotifier({required this.orderRepository, required this.idOrder})
+      : super(OrderState(isLoading: true)) {
+    loadOrder(idOrder);
   }
 
   Future<void> loadOrder(int idOrder) async {
@@ -30,8 +34,8 @@ class OrderNotifier extends StateNotifier<OrderState> {
         );
         return;
       }
-      print("carga inciial");
-      final order = await orderRepository.getOrderById(idOrder);
+      //print("carga inciial");
+      final order = await orderRepository.getOrderById(idOrder!);
       // print(order.toJson());
       state = state.copyWith(
           isLoading: false, order: order, idOrden: order.idOrden);

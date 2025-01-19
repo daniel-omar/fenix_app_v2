@@ -28,9 +28,6 @@ class _OrderLiquidationScreen extends ConsumerState<OrderLiquidationScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
-    });
   }
 
   @override
@@ -40,10 +37,10 @@ class _OrderLiquidationScreen extends ConsumerState<OrderLiquidationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final orderState = ref.watch(orderProvider);
+    final orderState = ref.watch(orderProvider(widget.idOrder));
 
     liquidateOrder() async {
-      await ref.watch(orderProvider.notifier).liquidateOrder();
+      await ref.watch(orderProvider(widget.idOrder).notifier).liquidateOrder();
 
       if (!orderState.isSaving) {
         showSnackbar(context,
@@ -51,7 +48,7 @@ class _OrderLiquidationScreen extends ConsumerState<OrderLiquidationScreen> {
         return false;
       }
 
-      await ref.watch(orderProvider.notifier).clearData();
+      await ref.watch(orderProvider(widget.idOrder).notifier).clearData();
       await ref.watch(orderMaterialsSerialProvider.notifier).clearData();
       await ref.watch(orderMaterialsNotSerialProvider.notifier).clearData();
 
@@ -98,13 +95,13 @@ class _OrderLiquidationScreen extends ConsumerState<OrderLiquidationScreen> {
               ),
         floatingActionButton: orderState.isLoading
             ? null
-            :  FloatingActionButton.extended(
-                    onPressed: () async => {_dialogConfirmation(context)},
-                    label: const Text(
-                      "Liquidar",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
+            : FloatingActionButton.extended(
+                onPressed: () async => {_dialogConfirmation(context)},
+                label: const Text(
+                  "Liquidar",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
       ),
     );
   }
@@ -117,7 +114,7 @@ class _OrderView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final orderState = ref.watch(orderProvider);
+    final orderState = ref.watch(orderProvider(order.idOrden));
 
     final textStyles = Theme.of(context).textTheme;
 

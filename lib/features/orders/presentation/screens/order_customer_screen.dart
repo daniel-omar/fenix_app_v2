@@ -32,9 +32,6 @@ class _CustomerOrderScreen extends ConsumerState<CustomerOrderScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
-    });
   }
 
   @override
@@ -68,7 +65,9 @@ class _CustomerOrderScreen extends ConsumerState<CustomerOrderScreen> {
         parenteso: customerForm.parentesco.value,
       );
 
-      ref.watch(orderProvider.notifier).updateCustomerOrder(customerOrder);
+      ref
+          .watch(orderProvider(widget.idOrder).notifier)
+          .updateCustomerOrder(customerOrder);
 
       context.push('/customer_signature/${widget.idOrder}');
     }

@@ -14,7 +14,7 @@ class OrderMaterialUsedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final orderState = ref.watch(orderProvider);
+    final orderState = ref.watch(orderProvider(idOrder));
 
     return Scaffold(
       appBar: AppBar(
@@ -23,7 +23,7 @@ class OrderMaterialUsedScreen extends ConsumerWidget {
           IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
         ],
       ),
-      body: const _OrderMaterialUsedView(),
+      body: _OrderMaterialUsedView(idOrder: idOrder),
       floatingActionButton: orderState.isLoading
           ? null
           : (orderState.order!.estadoOrden.idEstadoOrden != 2
@@ -43,7 +43,8 @@ class OrderMaterialUsedScreen extends ConsumerWidget {
 }
 
 class _OrderMaterialUsedView extends ConsumerStatefulWidget {
-  const _OrderMaterialUsedView();
+  final int idOrder;
+  const _OrderMaterialUsedView({required this.idOrder});
 
   @override
   __OrderMaterialUsedViewState createState() => __OrderMaterialUsedViewState();
@@ -66,7 +67,7 @@ class __OrderMaterialUsedViewState
 
   @override
   Widget build(BuildContext context) {
-    final orderState = ref.watch(orderProvider);
+    final orderState = ref.watch(orderProvider(widget.idOrder));
 
     return Column(
       children: [

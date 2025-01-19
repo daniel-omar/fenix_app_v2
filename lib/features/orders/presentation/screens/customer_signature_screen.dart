@@ -29,14 +29,15 @@ class _CustomerSignatureScreen extends ConsumerState<CustomerSignatureScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
+    // });
   }
 
   @override
   void dispose() {
     super.dispose();
+    ref.read(orderProvider(widget.idOrder).notifier).dispose();
   }
 
   void showSnackbar(BuildContext context, String mensaje) {
@@ -109,11 +110,11 @@ class _CustomerSignatureScreen extends ConsumerState<CustomerSignatureScreen> {
 
       //var orderState = ref.watch(orderProvider);
       ref
-          .watch(orderProvider.notifier)
+          .watch(orderProvider(widget.idOrder).notifier)
           .updateTechnicalObservation(customerFormState.observacion.value);
 
-      ref.watch(orderProvider.notifier).removeEvidences();
-      ref.watch(orderProvider.notifier).addEvidence(file);
+      ref.watch(orderProvider(widget.idOrder).notifier).removeEvidences();
+      ref.watch(orderProvider(widget.idOrder).notifier).addEvidence(file);
 
       context.push('/order_liquidation/${widget.idOrder}');
     }

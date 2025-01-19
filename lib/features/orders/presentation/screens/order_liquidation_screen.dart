@@ -1,5 +1,6 @@
 import 'dart:io';
-
+import 'package:fenix_app_v2/features/home/home.dart';
+import 'package:fenix_app_v2/features/orders/domain/domain.dart' as domain;
 import 'package:fenix_app_v2/features/orders/domain/entities/order.dart';
 import 'package:fenix_app_v2/features/orders/presentation/providers/providers.dart';
 import 'package:flutter/material.dart';
@@ -8,27 +9,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fenix_app_v2/features/shared/shared.dart';
 import 'package:go_router/go_router.dart';
 
-class OrderScreen extends ConsumerStatefulWidget {
+class OrderLiquidationScreen extends ConsumerStatefulWidget {
   final int idOrder;
-  const OrderScreen({super.key, required this.idOrder});
+  const OrderLiquidationScreen({super.key, required this.idOrder});
 
   @override
   // ignore: library_private_types_in_public_api
-  _OrderScreen createState() => _OrderScreen();
+  _OrderLiquidationScreen createState() => _OrderLiquidationScreen();
 }
 
-class _OrderScreen extends ConsumerState<OrderScreen> {
-  void showSnackbar(BuildContext context) {
+class _OrderLiquidationScreen extends ConsumerState<OrderLiquidationScreen> {
+  void showSnackbar(BuildContext context, String mensaje) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Orden Actualizado')));
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
-    // ref.watch(orderProvider);
+        .showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
   @override
@@ -36,8 +30,6 @@ class _OrderScreen extends ConsumerState<OrderScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
-      ref.watch(orderProvider);
-      setState(() {});
     });
   }
 
@@ -48,14 +40,55 @@ class _OrderScreen extends ConsumerState<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ref.read(orderProvider.notifier).loadOrder(widget.idOrder);
     final orderState = ref.watch(orderProvider);
+
+    liquidateOrder() async {
+      await ref.watch(orderProvider.notifier).liquidateOrder();
+
+      if (!orderState.isSaving) {
+        showSnackbar(context,
+            "Ocurrio un problema al liquidar, comunicarse con el administrador");
+        return false;
+      }
+
+      await ref.watch(orderProvider.notifier).clearData();
+      await ref.watch(orderMaterialsSerialProvider.notifier).clearData();
+      await ref.watch(orderMaterialsNotSerialProvider.notifier).clearData();
+
+      showSnackbar(context, "Orden Liquidada");
+
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => const HomeScreen()));
+    }
+
+    Future<void> _dialogConfirmation(BuildContext context) {
+      return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Liquidar'),
+            content: const Text('¿Estás seguro del liquidar la orden?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Cancel'),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () =>
+                    {Navigator.of(context).pop(), liquidateOrder()},
+                child: const Text('Sí'),
+              ),
+            ],
+          );
+        },
+      );
+    }
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Detalle Orden'),
+          title: const Text('Detalle Liquidación'),
           actions: const [],
         ),
         body: orderState.isLoading
@@ -65,24 +98,13 @@ class _OrderScreen extends ConsumerState<OrderScreen> {
               ),
         floatingActionButton: orderState.isLoading
             ? null
-            : (orderState.order!.estadoOrden.idEstadoOrden != 2
-                ? null
-                : FloatingActionButton.extended(
-                    onPressed: () {
-                      if (orderState.order == null) return;
-                      ref
-                          .watch(orderMaterialsSerialProvider.notifier)
-                          .clearData();
-                      ref
-                          .watch(orderMaterialsNotSerialProvider.notifier)
-                          .clearData();
-                      context.push('/order_materials/${orderState.idOrden}');
-                    },
+            :  FloatingActionButton.extended(
+                    onPressed: () async => {_dialogConfirmation(context)},
                     label: const Text(
-                      "Iniciar liquidación",
+                      "Liquidar",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  )),
+                  ),
       ),
     );
   }
@@ -99,17 +121,57 @@ class _OrderView extends ConsumerWidget {
 
     final textStyles = Theme.of(context).textTheme;
 
-    return ListView(
+    return Column(
       children: [
-        Center(
-          child: Text(
-            order.numeroOrden,
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 25),
-            textAlign: TextAlign.center,
+        Expanded(
+          child: Column(
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Generales',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              const SizedBox(height: 10),
+              _OrderInformation(order: order),
+              const SizedBox(height: 10),
+              const Text(
+                'Materiales',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: SingleChildScrollView(
+                  //scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                      columns: const <DataColumn>[
+                        DataColumn(
+                            label: Text(
+                              "Material",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            tooltip: "Descripción"),
+                        DataColumn(
+                            label: Text(
+                              "Cantidad",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            tooltip: "Cantidad")
+                      ],
+                      rows: orderState.orderMaterials!
+                          .map((orderMaterial) => DataRow(cells: [
+                                DataCell(
+                                  Text(orderMaterial.material!.nombreMaterial),
+                                ),
+                                DataCell(
+                                  Text(orderMaterial.cantidad.toString()),
+                                )
+                              ]))
+                          .toList()),
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 10),
-        _OrderInformation(order: orderState.order!),
       ],
     );
   }
@@ -126,11 +188,6 @@ class _OrderInformation extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Generales',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-          ),
-          const SizedBox(height: 10),
           CustomTextFormField(
             readOnly: true,
             isTopField: true,
@@ -159,22 +216,14 @@ class _OrderInformation extends ConsumerWidget {
             label: 'Actividad',
             initialValue: order.actividad.nombreActividad,
           ),
-          const SizedBox(height: 10),
-          CustomTextFormField(
-            readOnly: true,
-            isTopField: true,
-            keyboardType: TextInputType.datetime,
-            label: 'Fecha programacion',
-            initialValue: order.fechaProgramacion,
-          ),
-          const SizedBox(height: 10),
-          CustomTextFormField(
-            readOnly: true,
-            isTopField: true,
-            label: 'Estado',
-            initialValue: order.estadoOrden.nombreEstado,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-          )
+          // const SizedBox(height: 10),
+          // CustomTextFormField(
+          //   readOnly: true,
+          //   isTopField: true,
+          //   keyboardType: TextInputType.datetime,
+          //   label: 'Fecha programacion',
+          //   initialValue: order.fechaProgramacion,
+          // ),
         ],
       ),
     );
@@ -284,6 +333,60 @@ class _ImageGallery extends StatelessWidget {
               )),
         );
       }).toList(),
+    );
+  }
+}
+
+class _OrderMaterialItem extends ConsumerWidget {
+  final domain.OrderMaterial orderMaterial;
+
+  const _OrderMaterialItem({required this.orderMaterial});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    // ignore: unused_local_variable
+    const TextStyle styleFieldValue = TextStyle(fontSize: 16);
+
+    return Material(
+      // color: Colors.amber,
+      child: InkWell(
+        onTap: () {
+          //Navigator.of(context).pop(true);
+          //Navigator.of(context).pushNamed(menu.rutaMenu);
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+          decoration: BoxDecoration(
+              color: colorScheme.primary.withAlpha(100),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const [
+                BoxShadow(
+                    color: Color(0x000005cc),
+                    blurRadius: 20,
+                    offset: Offset(10, 10))
+              ]),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              CustomTextFormField(
+                readOnly: true,
+                isTopField: true,
+                initialValue: orderMaterial.material?.nombreMaterial,
+                width: 250,
+              ),
+              CustomTextFormField(
+                readOnly: true,
+                isTopField: true,
+                initialValue: orderMaterial.cantidad.toString(),
+                width: 80,
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -78,6 +78,10 @@ class OrderMaterialsSerialNotifier extends StateNotifier<OrderMaterialsState> {
 
     state = state.copyWith(orderMaterialsSerial: [...orderMaterials]);
   }
+
+  clearData() {
+    state = state.copyWith(orderMaterialsSerial: []);
+  }
 }
 
 final orderMaterialsNotSerialProvider =
@@ -167,6 +171,11 @@ class OrderMaterialsNotSerialNotifier
         (element) => element.idCategoria == idCategoria)] = orderMaterialGroup;
 
     state = state.copyWith(orderMaterialsGroupNotSerial: orderMaterialsGroup);
+  }
+
+  clearData() {
+    state = state.copyWith(
+        orderMaterialsGroupNotSerial: [], orderMaterialsNotSerial: []);
   }
 }
 

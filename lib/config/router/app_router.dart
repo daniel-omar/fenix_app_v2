@@ -1,6 +1,7 @@
 import 'package:fenix_app_v2/features/home/presentation/screens/home_screen.dart';
 import 'package:fenix_app_v2/features/orders/presentation/screens/customer_signature_screen.dart';
 import 'package:fenix_app_v2/features/orders/presentation/screens/order_customer_screen.dart';
+import 'package:fenix_app_v2/features/orders/presentation/screens/order_liquidation_screen.dart';
 import 'package:fenix_app_v2/features/orders/presentation/screens/order_material_screen.dart';
 import 'package:fenix_app_v2/features/orders/presentation/screens/order_material_used_screen.dart';
 import 'package:fenix_app_v2/features/orders/presentation/screens/screens.dart';
@@ -89,6 +90,14 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
         path: '/order_materials_used/:idOrden', // /product/new
         builder: (context, state) => OrderMaterialUsedScreen(
+          idOrder: state.pathParameters['idOrden'] != null
+              ? int.parse(state.pathParameters['idOrden']!)
+              : 0,
+        ),
+      ),
+      GoRoute(
+        path: '/order_liquidation/:idOrden', // /product/new
+        builder: (context, state) => OrderLiquidationScreen(
           idOrder: state.pathParameters['idOrden'] != null
               ? int.parse(state.pathParameters['idOrden']!)
               : 0,

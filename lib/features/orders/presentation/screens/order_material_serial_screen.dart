@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:fenix_app_v2/features/orders/domain/domain.dart' as Domain;
 import 'package:fenix_app_v2/features/orders/presentation/providers/providers.dart';
+import 'package:fenix_app_v2/features/shared/infrastructure/providers/no_space_formatter.dart';
 import 'package:fenix_app_v2/features/shared/widgets/custom_elevated_icon_button.dart';
 import 'package:fenix_app_v2/features/shared/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
@@ -249,6 +250,7 @@ class _OrderMaterialSeriado extends ConsumerState<OrderMaterialSeriado> {
                     width: 220,
                     textEditingController: textEditingController,
                     onChanged: _changeSerie,
+                    listTextInputFormatter: [NoSpaceFormatter()],
                   ),
                 ],
               ),

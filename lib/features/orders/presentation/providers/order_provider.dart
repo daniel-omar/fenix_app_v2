@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:fenix_app_v2/features/orders/domain/domain.dart';
 import 'package:fenix_app_v2/features/orders/domain/entities/order_customer.dart';
 import 'package:fenix_app_v2/features/orders/domain/entities/order_material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'order_repository_provider.dart';
 
@@ -56,6 +59,62 @@ class OrderNotifier extends StateNotifier<OrderState> {
   updateCustomerOrder(CustomerOrder customerOrder) {
     state = state.copyWith(customerOrder: customerOrder);
   }
+
+  updateOrder(Order order) {
+    state = state.copyWith(order: order);
+  }
+
+  updateTechnicalObservation(String value) {
+    state = state.copyWith(technicalObservation: value);
+  }
+
+  removeEvidences() {
+    state = state.copyWith(evidences: []);
+  }
+
+  addEvidence(XFile file) {
+    List<XFile>? evidencesList = state.evidences;
+
+    evidencesList = evidencesList ?? [];
+    evidencesList.add(file);
+
+    state = state.copyWith(evidences: evidencesList);
+  }
+
+  Future<void> liquidateOrder() async {
+    try {
+      state = state.copyWith(isLoading: true, isSaving: false);
+
+      final orderLiquidated = {
+        'orden': state.order!.toJson(),
+        'cliente_orden': state.customerOrder!.toJson(),
+        'materiales_orden':
+            state.orderMaterials!.map((e) => e.toJson()).toList(),
+        'observacion_tecnico': state.technicalObservation,
+      };
+
+      final order = await orderRepository.liquidateOrder(
+          orderLiquidated, state.evidences!);
+      // print(order.toJson());
+      state = state.copyWith(isLoading: false, isSaving: true);
+    } catch (e) {
+      // 404 product not found
+      state = state.copyWith(isLoading: false, isSaving: false);
+
+      print(e);
+    }
+  }
+
+  clearData() {
+    state = state.copyWith(
+        isLoading: false,
+        isSaving: false,
+        order: null,
+        orderMaterials: [],
+        customerOrder: null,
+        technicalObservation: '',
+        evidences: []);
+  }
 }
 
 class OrderState {
@@ -65,27 +124,38 @@ class OrderState {
   final bool isSaving;
   final List<OrderMaterial>? orderMaterials;
   final CustomerOrder? customerOrder;
+  final String? technicalObservation;
+  final List<XFile>? evidences;
 
-  OrderState(
-      {this.idOrden,
-      this.order,
-      this.isLoading = true,
-      this.isSaving = false,
-      this.orderMaterials = const [],
-      this.customerOrder});
+  OrderState({
+    this.idOrden,
+    this.order,
+    this.isLoading = true,
+    this.isSaving = false,
+    this.orderMaterials = const [],
+    this.customerOrder,
+    this.technicalObservation,
+    this.evidences,
+  });
 
-  OrderState copyWith(
-          {int? idOrden,
-          Order? order,
-          bool? isLoading,
-          bool? isSaving,
-          List<OrderMaterial>? orderMaterials,
-          CustomerOrder? customerOrder}) =>
+  OrderState copyWith({
+    int? idOrden,
+    Order? order,
+    bool? isLoading,
+    bool? isSaving,
+    List<OrderMaterial>? orderMaterials,
+    CustomerOrder? customerOrder,
+    String? technicalObservation,
+    List<XFile>? evidences,
+  }) =>
       OrderState(
-          idOrden: idOrden ?? this.idOrden,
-          order: order ?? this.order,
-          isLoading: isLoading ?? this.isLoading,
-          isSaving: isSaving ?? this.isSaving,
-          orderMaterials: orderMaterials ?? this.orderMaterials,
-          customerOrder: customerOrder ?? this.customerOrder);
+        idOrden: idOrden ?? this.idOrden,
+        order: order ?? this.order,
+        isLoading: isLoading ?? this.isLoading,
+        isSaving: isSaving ?? this.isSaving,
+        orderMaterials: orderMaterials ?? this.orderMaterials,
+        customerOrder: customerOrder ?? this.customerOrder,
+        technicalObservation: technicalObservation ?? this.technicalObservation,
+        evidences: evidences ?? this.evidences,
+      );
 }

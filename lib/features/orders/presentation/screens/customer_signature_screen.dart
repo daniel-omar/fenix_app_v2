@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:fenix_app_v2/features/orders/presentation/providers/forms/customer_signature_form_provider.dart';
 import 'package:fenix_app_v2/features/orders/presentation/providers/providers.dart';
 import 'package:fenix_app_v2/features/shared/shared.dart';
 import 'package:fenix_app_v2/features/shared/widgets/custom_text_area.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:signature/signature.dart';
 
 class CustomerSignatureScreen extends ConsumerStatefulWidget {
@@ -20,6 +22,9 @@ class CustomerSignatureScreen extends ConsumerStatefulWidget {
 
 class _CustomerSignatureScreen extends ConsumerState<CustomerSignatureScreen> {
   bool esHabilitado = false;
+  bool esFirmado = false;
+  Uint8List? exportedImage;
+  late XFile file;
 
   @override
   void initState() {
@@ -34,9 +39,32 @@ class _CustomerSignatureScreen extends ConsumerState<CustomerSignatureScreen> {
     super.dispose();
   }
 
+  void showSnackbar(BuildContext context, String mensaje) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(mensaje)));
+  }
+
   _changeHabilitado(bool esSeleccionado) {
     setState(() {
       esHabilitado = esSeleccionado;
+    });
+  }
+
+  _changeFirmado(bool valor) async {
+    exportedImage =
+        await signatureController.toPngBytes(height: 1000, width: 1000);
+    file = XFile.fromData(exportedImage!, name: "firma");
+
+    setState(() {
+      esFirmado = valor;
+    });
+  }
+
+  _changeLimpiado() async {
+    signatureController.clear();
+    setState(() {
+      esFirmado = false;
     });
   }
 
@@ -44,13 +72,51 @@ class _CustomerSignatureScreen extends ConsumerState<CustomerSignatureScreen> {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
-      builder: (ctx) => InfoScreen(),
+      builder: (ctx) => InfoScreen(
+        onChangeObservacion: ref
+            .read(customerSignatureFormProvider.notifier)
+            .onObservacionChanged,
+      ),
     );
   }
+
+  SignatureController signatureController = SignatureController(
+    penStrokeWidth: 3,
+    penColor: Colors.red,
+    exportBackgroundColor: Colors.yellowAccent,
+  );
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final customerFormState = ref.watch(customerSignatureFormProvider);
+
+    nextPage() {
+      if (!esHabilitado) {
+        showSnackbar(context, "Debe aceptar conformidad de la instalación");
+        return false;
+      }
+
+      if (!customerFormState.isFormValid) {
+        showSnackbar(context, "Debe completar la observación");
+        return false;
+      }
+
+      if (!esFirmado) {
+        showSnackbar(context, "Debe completar la firma del cliente");
+        return false;
+      }
+
+      //var orderState = ref.watch(orderProvider);
+      ref
+          .watch(orderProvider.notifier)
+          .updateTechnicalObservation(customerFormState.observacion.value);
+
+      ref.watch(orderProvider.notifier).removeEvidences();
+      ref.watch(orderProvider.notifier).addEvidence(file);
+
+      context.push('/order_liquidation/${widget.idOrder}');
+    }
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -65,15 +131,19 @@ class _CustomerSignatureScreen extends ConsumerState<CustomerSignatureScreen> {
           ],
         ),
         body: _SignatureView(
+          controller: signatureController,
           onChanged: _changeHabilitado,
+          onSigned: _changeFirmado,
+          onCleaned: _changeLimpiado,
           esHabilitado: esHabilitado,
+          esFirmado: esFirmado,
         ),
         floatingActionButton: FloatingActionButton.extended(
           disabledElevation: 10,
           onPressed: !esHabilitado
               ? null
               : () {
-                  context.push('/order_materials/${1}');
+                  nextPage();
                 },
           label: Text(
             "Siguiente",
@@ -91,20 +161,24 @@ class _CustomerSignatureScreen extends ConsumerState<CustomerSignatureScreen> {
 
 class _SignatureView extends ConsumerWidget {
   final void Function(bool value) onChanged;
-  final bool esHabilitado;
+  final void Function(bool value) onSigned;
+  final void Function() onCleaned;
 
-  const _SignatureView({required this.onChanged, this.esHabilitado = false});
+  bool esHabilitado;
+  bool esFirmado;
+  SignatureController controller;
+
+  _SignatureView(
+      {required this.onChanged,
+      required this.onSigned,
+      required this.onCleaned,
+      this.esHabilitado = false,
+      this.esFirmado = false,
+      required this.controller});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textStyles = Theme.of(context).textTheme;
-    Uint8List? exportedImage;
-
-    SignatureController controller = SignatureController(
-      penStrokeWidth: 3,
-      penColor: Colors.red,
-      exportBackgroundColor: Colors.yellowAccent,
-    );
 
     return ListView(
       children: [
@@ -128,7 +202,7 @@ class _SignatureView extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
         AbsorbPointer(
-          absorbing: !esHabilitado,
+          absorbing: (!esHabilitado || esFirmado),
           child: Signature(
             controller: controller,
             width: 350,
@@ -143,46 +217,50 @@ class _SignatureView extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 125,
-              child: Padding(
-                padding: const EdgeInsets.all(5),
-                child: CustomFilledButton(
-                  text: "Limpiar",
-                  buttonColor: Colors.red,
-                  onPressed: () async => {controller.clear()},
-                  radius: const Radius.circular(10),
-                ),
-              ),
-            ),
-            SizedBox(
-              width: 125,
-              child: Padding(
-                padding: const EdgeInsets.all(5),
-                child: CustomFilledButton(
-                  text: "Ok",
-                  buttonColor: Colors.blueAccent,
-                  onPressed: () async => {controller.clear()},
-                ),
-              ),
-            ),
-
-            // Padding(
-            //   padding: const EdgeInsets.all(5),
-            //   child: CustomFilledButton(
-            //     text: "Retroceder",
-            //     buttonColor: const Color.fromARGB(255, 189, 177, 68),
-            //     onPressed: () async => {controller.undo()},
-            //   ),
-            // ),
-            // Padding(
-            //   padding: const EdgeInsets.all(5),
-            //   child: CustomFilledButton(
-            //     text: "Restaurar",
-            //     buttonColor: Colors.blue,
-            //     onPressed: () async => {controller.redo()},
-            //   ),
-            // ),
+            esFirmado
+                ? SizedBox(
+                    width: 125,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: CustomFilledButton(
+                        text: "Nuevo",
+                        buttonColor: Colors.red,
+                        onPressed: esHabilitado ? onCleaned : null,
+                        radius: const Radius.circular(10),
+                      ),
+                    ),
+                  )
+                : const SizedBox(),
+            esFirmado
+                ? const SizedBox()
+                : SizedBox(
+                    width: 125,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: CustomFilledButton(
+                        text: "Limpiar",
+                        buttonColor: Colors.red,
+                        onPressed: esHabilitado
+                            ? () async => {controller.clear()}
+                            : null,
+                        radius: const Radius.circular(10),
+                      ),
+                    ),
+                  ),
+            esFirmado
+                ? const SizedBox()
+                : SizedBox(
+                    width: 125,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: CustomFilledButton(
+                        text: "Ok",
+                        buttonColor: Colors.blueAccent,
+                        onPressed:
+                            esHabilitado ? () async => {onSigned(true)} : null,
+                      ),
+                    ),
+                  ),
           ],
         )
       ],
@@ -197,7 +275,7 @@ class _SignatureView extends ConsumerWidget {
           title: const Text('Conformidad del cliente'),
           content: const Text(
               'Con la firma del presente documento el cliente manifiesta su conformidad\n'
-              'de la atención requerida a Telefónica.\n'
+              'de la atención requerida.\n'
               'En el caso de averías: Con la conformidad de la atención, el cliente\n'
               'manifiesta su conformidad con la solución anticipada del problema de\n'
               'calidad de su servicio y desiste de continuar el procedimiento de reclamo.'),
@@ -224,7 +302,8 @@ class _SignatureView extends ConsumerWidget {
 }
 
 class InfoScreen extends StatelessWidget {
-  const InfoScreen({super.key});
+  void Function(String value) onChangeObservacion;
+  InfoScreen({super.key, required this.onChangeObservacion});
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +327,7 @@ class InfoScreen extends StatelessWidget {
               label: '',
               minLine: 5,
               maxLine: null,
-              onChanged: (value)=>{},
+              onChanged: onChangeObservacion,
             ),
             const SizedBox(height: 10),
             SizedBox(
@@ -261,7 +340,7 @@ class InfoScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('Exit'),
+                child: const Text('Aceptar'),
               ),
             ),
           ],

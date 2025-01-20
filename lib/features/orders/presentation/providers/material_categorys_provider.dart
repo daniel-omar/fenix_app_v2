@@ -31,7 +31,10 @@ class MaterialCategorysNotifier extends StateNotifier<MaterialCategorysState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      final materialCategorys = await materialCategoryRepository.getAll();
+      Map<String, dynamic> body = {};
+      body["es_seriado"] = true;
+
+      final materialCategorys = await materialCategoryRepository.getList(body);
 
       state = state.copyWith(
           isLoading: false, materialCategorys: materialCategorys);

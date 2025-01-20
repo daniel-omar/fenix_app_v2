@@ -10,9 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class OrderMaterialSeriadoView extends ConsumerStatefulWidget {
-  final Domain.Order order;
+  // final Domain.Order order;
 
-  const OrderMaterialSeriadoView({required this.order});
+  const OrderMaterialSeriadoView({super.key});
 
   @override
   // ignore: library_private_types_in_public_api

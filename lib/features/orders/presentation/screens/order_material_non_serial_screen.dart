@@ -2,16 +2,15 @@ import 'dart:io';
 
 import 'package:fenix_app_v2/features/orders/domain/domain.dart' as Domain;
 import 'package:fenix_app_v2/features/orders/presentation/providers/providers.dart';
-import 'package:fenix_app_v2/features/shared/widgets/custom_elevated_icon_button.dart';
 import 'package:fenix_app_v2/features/shared/widgets/custom_text_form_field.dart';
+import 'package:fenix_app_v2/features/shared/widgets/full_screen_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OrderMaterialNoSeriadoView extends ConsumerStatefulWidget {
-  final Domain.Order order;
-
-  const OrderMaterialNoSeriadoView({super.key, required this.order});
+  // final Domain.Order order;
+  const OrderMaterialNoSeriadoView({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -23,22 +22,21 @@ class _OrderMaterialNoSeriadoView
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref
-          .read(orderMaterialsNotSerialProvider.notifier)
-          .getOrderMaterialsGroup();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   ref
+    //       .read(orderMaterialsNotSerialProvider.notifier)
+    //       .getOrderMaterialsGroup();
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final orderMaterialsNotSerialState =
         ref.watch(orderMaterialsNotSerialProvider);
 
-    final double width = MediaQuery.of(context).size.width;
+    // final double width = MediaQuery.of(context).size.width;
 
-    return orderMaterialsNotSerialState.orderMaterialsGroupNotSerial!.isNotEmpty
+    return !orderMaterialsNotSerialState.isLoading
         ? Column(
             children: [
               const SizedBox(height: 20),
@@ -90,7 +88,8 @@ class _OrderMaterialNoSeriadoView
               const SizedBox(height: 20)
             ],
           )
-        : const CircularProgressIndicator();
+        : const SizedBox(
+            width: double.infinity, height: 60, child: FullScreenLoader());
   }
 }
 

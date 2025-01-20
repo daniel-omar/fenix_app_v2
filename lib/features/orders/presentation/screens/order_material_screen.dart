@@ -34,6 +34,12 @@ class _OrderMaterialScreen extends ConsumerState<OrderMaterialScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   ref
+    //       .read(orderMaterialsNotSerialProvider.notifier)
+    //       .getOrderMaterialsGroup();
+    // });
   }
 
   @override
@@ -45,6 +51,7 @@ class _OrderMaterialScreen extends ConsumerState<OrderMaterialScreen>
   @override
   Widget build(BuildContext context) {
     final orderState = ref.watch(orderProvider(widget.idOrder));
+
     final orderMaterialsSerialState = ref.watch(orderMaterialsSerialProvider);
     final orderMaterialsNotSerialState =
         ref.watch(orderMaterialsNotSerialProvider);
@@ -106,9 +113,9 @@ class _OrderMaterialScreen extends ConsumerState<OrderMaterialScreen>
                 width: double.infinity, height: 60, child: FullScreenLoader())
             : TabBarView(
                 controller: _tabController,
-                children: <Widget>[
-                  OrderMaterialSeriadoView(order: orderState.order!),
-                  OrderMaterialNoSeriadoView(order: orderState.order!)
+                children: const <Widget>[
+                  OrderMaterialSeriadoView(),
+                  OrderMaterialNoSeriadoView()
                 ],
               ),
         floatingActionButton: orderState.isLoading

@@ -48,6 +48,7 @@ class _CustomerOrderScreen extends ConsumerState<CustomerOrderScreen> {
   @override
   Widget build(BuildContext context) {
     final customerState = ref.watch(customerOrderProvider(widget.idOrder));
+    final documentTypes = ref.watch(documentTypesProvider);
 
     nextPage() {
       final customerForm =
@@ -143,7 +144,6 @@ class _CustomerOrderInformation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final customerForm = ref.watch(customerFormProvider(customer));
-
     final documentTypes = ref.watch(documentTypesProvider);
 
     final double width = MediaQuery.of(context).size.width;
@@ -230,13 +230,12 @@ class _CustomerOrderInformation extends ConsumerWidget {
             errorMessage: customerForm.correo.errorMessage,
           ),
           const SizedBox(height: 10),
-          if (!documentTypes.isLoading)
-            DropdownParentesco(
-                onSelected: ref
-                    .read(customerFormProvider(customer).notifier)
-                    .onParentescoChanged,
-                width: width,
-                errorMessage: customerForm.parentesco.errorMessage),
+          DropdownParentesco(
+              onSelected: ref
+                  .read(customerFormProvider(customer).notifier)
+                  .onParentescoChanged,
+              width: width,
+              errorMessage: customerForm.parentesco.errorMessage),
         ],
       ),
     );

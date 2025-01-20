@@ -41,16 +41,17 @@ class _OrderLiquidationScreen extends ConsumerState<OrderLiquidationScreen> {
 
     liquidateOrder() async {
       await ref.watch(orderProvider(widget.idOrder).notifier).liquidateOrder();
+      final orderState_ = ref.read(orderProvider(widget.idOrder));
 
-      if (!orderState.isSaving) {
+      if (!orderState_.isSaving) {
         showSnackbar(context,
             "Ocurrio un problema al liquidar, comunicarse con el administrador");
         return false;
       }
 
-      await ref.watch(orderProvider(widget.idOrder).notifier).clearData();
-      await ref.watch(orderMaterialsSerialProvider.notifier).clearData();
-      await ref.watch(orderMaterialsNotSerialProvider.notifier).clearData();
+      await ref.read(orderProvider(widget.idOrder).notifier).clearData();
+      await ref.read(orderMaterialsSerialProvider.notifier).clearData();
+      await ref.read(orderMaterialsNotSerialProvider.notifier).clearData();
 
       showSnackbar(context, "Orden Liquidada");
 
@@ -138,8 +139,11 @@ class _OrderView extends ConsumerWidget {
               const SizedBox(height: 10),
               Expanded(
                 child: SingleChildScrollView(
-                  //scrollDirection: Axis.horizontal,
-                  child: DataTable(
+                  //physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
                       columns: const <DataColumn>[
                         DataColumn(
                             label: Text(
@@ -152,20 +156,40 @@ class _OrderView extends ConsumerWidget {
                               "Cantidad",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            tooltip: "Cantidad")
+                            tooltip: "Cantidad"),
+                        DataColumn(
+                            label: Text(
+                              "Serie",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            tooltip: "Serie")
                       ],
                       rows: orderState.orderMaterials!
                           .map((orderMaterial) => DataRow(cells: [
                                 DataCell(
-                                  Text(orderMaterial.material!.nombreMaterial),
+                                  SizedBox(
+                                      width: 150,
+                                      child: Text(orderMaterial
+                                          .material!.nombreMaterial)),
                                 ),
                                 DataCell(
-                                  Text(orderMaterial.cantidad.toString()),
+                                  SizedBox(
+                                      width: 100,
+                                      child: Text(
+                                          orderMaterial.cantidad.toString())),
+                                ),
+                                DataCell(
+                                  SizedBox(
+                                      width: 100,
+                                      child: Text(orderMaterial.serie ?? "")),
                                 )
                               ]))
-                          .toList()),
+                          .toList(),
+                    ),
+                  ),
                 ),
               ),
+              const SizedBox(height: 30),
             ],
           ),
         ),

@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'order_repository_provider.dart';
 
 final orderMaterialsSerialProvider =
-    StateNotifierProvider<OrderMaterialsSerialNotifier, OrderMaterialsState>(
+    StateNotifierProvider.autoDispose<OrderMaterialsSerialNotifier, OrderMaterialsState>(
         (ref) {
   final orderRepository = ref.watch(orderRepositoryProvider);
 
@@ -85,7 +85,7 @@ class OrderMaterialsSerialNotifier extends StateNotifier<OrderMaterialsState> {
 }
 
 final orderMaterialsNotSerialProvider =
-    StateNotifierProvider<OrderMaterialsNotSerialNotifier, OrderMaterialsState>(
+    StateNotifierProvider.autoDispose<OrderMaterialsNotSerialNotifier, OrderMaterialsState>(
         (ref) {
   final orderRepository = ref.watch(orderRepositoryProvider);
   final materialRepository = ref.watch(materialRepositoryProvider);
@@ -104,12 +104,12 @@ class OrderMaterialsNotSerialNotifier
   OrderMaterialsNotSerialNotifier(
       {required this.orderRepository, required this.materialRepository})
       : super(OrderMaterialsState()) {
-    //loadOrder();
+    getOrderMaterialsGroup();
   }
 
   Future<void> getOrderMaterialsGroup() async {
     try {
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: true);
 
       List<MaterialCategory> materialsCategorys =
           await materialRepository.getListGroupByFilters(esSeriado: false);
@@ -174,6 +174,7 @@ class OrderMaterialsNotSerialNotifier
   }
 
   clearData() {
+
     state = state.copyWith(
         orderMaterialsGroupNotSerial: [], orderMaterialsNotSerial: []);
   }

@@ -49,4 +49,22 @@ class MaterialCategoryDatasourceImpl extends MaterialCategoryDatasource {
 
     return materialCategorys;
   }
+
+  @override
+  Future<List<MaterialCategory>> getList(Map<String, dynamic> body) async {
+    final response = await dioClient.dio
+        .get('/materials/material_category/getList', data: body);
+    ResponseMain responseMain =
+        ResponseMainMapper.responseJsonToEntity(response.data);
+
+    final List<MaterialCategory> materialCategorys = [];
+
+    // ignore: no_leading_underscores_for_local_identifiers
+    for (final _materialCategory in responseMain.data ?? []) {
+      materialCategorys.add(MaterialCategoryMapper.materialCategoryJsonToEntity(
+          _materialCategory));
+    }
+
+    return materialCategorys;
+  }
 }

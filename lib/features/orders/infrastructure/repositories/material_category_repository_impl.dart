@@ -14,4 +14,9 @@ class MaterialCategoryRepositoryImpl extends MaterialCategoryRepository {
   Future<List<MaterialCategory>> getAll() {
     return datasource.getAll();
   }
+
+  @override
+  Future<List<MaterialCategory>> getList(Map<String, dynamic> body) {
+    return datasource.getList(body);
+  }
 }

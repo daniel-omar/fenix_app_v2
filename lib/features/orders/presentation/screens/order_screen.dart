@@ -70,12 +70,12 @@ class _OrderScreen extends ConsumerState<OrderScreen> {
                 : FloatingActionButton.extended(
                     onPressed: () {
                       if (orderState.order == null) return;
-                      ref
-                          .watch(orderMaterialsSerialProvider.notifier)
-                          .clearData();
-                      ref
-                          .watch(orderMaterialsNotSerialProvider.notifier)
-                          .clearData();
+                      // ref
+                      //     .watch(orderMaterialsSerialProvider.notifier)
+                      //     .clearData();
+                      // ref
+                      //     .watch(orderMaterialsNotSerialProvider.notifier)
+                      //     .clearData();
                       context.push('/order_materials/${orderState.idOrden}');
                     },
                     label: const Text(
